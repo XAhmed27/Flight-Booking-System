@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         form {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.3);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -78,16 +78,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 10px;
             margin: 8px 0;
             box-sizing: border-box;
+            background-color: transparent; /* Transparent background for input */
+            border: 1px solid #ccc; /* Rectangle border with a light gray color */
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
     </style>
 </head>

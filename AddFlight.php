@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <div class="navbar">
+        <a href="AddFlight.php" class="nav-button">Add Flight</a>
+        <a href="FlightLists.php" class="nav-button">#Flights List</a>
+        <a href="Profile.php" class="nav-button">Profile</a>
+        <a href="Messages.php" class="nav-button">Messages</a>
+    </div>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Flight</title>
