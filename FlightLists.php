@@ -61,17 +61,17 @@ require_once 'connection.php';
 use \Firebase\JWT\JWT;
 global $conn;
 
-// Function to get flights data from the database
+//  flights data from the database
 function getFlightsData() {
     global $conn;
 
     try {
-        $query = "SELECT flightID, name, itinerary, fees, startTime, endTime
+        $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime
                   FROM flight"; 
     
         $stmt = $conn->prepare($query);
         $stmt->execute();
-        $stmt->bind_result($flightID, $name, $itinerary, $fees, $startTime, $endTime);
+        $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime);
 
         // Fetch all rows
         $flights = [];
@@ -79,7 +79,8 @@ function getFlightsData() {
             $flights[] = [
                 'flightID' => $flightID,
                 'name' => $name,
-                'itinerary' => $itinerary,
+                'flight_from' => $flightFrom,
+                'flight_to' => $flightTo,
                 'fees' => $fees,
                 'startTime' => $startTime,
                 'endTime' => $endTime,
@@ -89,7 +90,7 @@ function getFlightsData() {
         return $flights;
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
-        return [];  // Return an empty array on error
+        return []; 
     }
 }
 
@@ -101,7 +102,8 @@ $flights = getFlightsData();
 <table border="1">
     <tr>
         <th>Flight Name</th>
-        <th>Itinerary</th>
+        <th>From</th>
+        <th>To</th>
         <th>Fees</th>
         <th>Start Time</th>
         <th>End Time</th>
@@ -109,7 +111,8 @@ $flights = getFlightsData();
     <?php foreach ($flights ?? [] as $flightName => $flight) : ?>
         <tr>
             <td><?php echo $flight['name']; ?></td>
-            <td><?php echo $flight['itinerary']; ?></td>
+            <td><?php echo $flight['flight_from']; ?></td>
+            <td><?php echo $flight['flight_to']; ?></td>
             <td><?php echo $flight['fees']; ?></td>
             <td><?php echo $flight['startTime']; ?></td>
             <td><?php echo $flight['endTime']; ?></td>
@@ -117,9 +120,8 @@ $flights = getFlightsData();
     <?php endforeach; ?>
 </table>
 
-<!-- Add a link to go back to the add flight page -->
-<!-- <a href="AddFlight.php">Add a New Flight</a> -->
-<!-- <a href="AddFlight.php" class="button-link">Add a New Flight</a> -->
+<!--link to go back -->
+<a href="AddFlight.php" class="button-link">Add a New Flight</a>
 
 </body>
 </html>

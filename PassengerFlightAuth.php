@@ -2,59 +2,68 @@
 require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
+
 use \Firebase\JWT\JWT;
 
 global $conn;
 
-// Initializing
-$email = $newEmail = $newTel = $password = $message = '';
-$userData = array();
+// Initialize variables
+$email = $password = $message = '';
+$passengerData = array();
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+    // Retrieve the submitted email and password
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     try {
-        // Check if a user with the provided email exists
-        $getUserQuery = "SELECT u.*, p.PassportImg, p.photo FROM users u
-                         JOIN passenger p ON u.userID = p.userID
-                         WHERE u.email = ?";
-        $stmt = $conn->prepare($getUserQuery);
+        // Check if a user with the provided email exists in the passenger table
+        $getPassengerQuery = "SELECT u.name, u.email, u.tel, u.accountBalance, u.password, p.*
+            FROM users u
+            JOIN passenger p ON u.userID = p.userID
+            WHERE u.email = ?";
+        $stmt = $conn->prepare($getPassengerQuery);
         $stmt->bind_param("s", $email);
         $stmt->execute();
-        $userResult = $stmt->get_result();
+        $passengerResult = $stmt->get_result();
 
-        if ($userResult->num_rows === 0) {
-            $message = 'User not found';
+        if ($passengerResult->num_rows === 0) {
+            $message = 'Passenger not found';
         } else {
-            // Fetch user
-            $userData = $userResult->fetch_assoc();
+            // Fetch the passenger 
+            $passengerData = $passengerResult->fetch_assoc();
 
-            if (password_verify($password, $userData['password'])) {
+          
+            if (!empty($passengerData['password']) && password_verify($password, $passengerData['password'])) {
                
-                header("Location: MyProfile.php?email=" . urlencode($userData['email']) . "&name=" . urlencode($userData['name']) . "&tel=" . urlencode($userData['tel']) . "&balance=" . urlencode($userData['accountBalance']) . "&PassportImg=" . urlencode($userData['PassportImg']) . "&photo=" . urlencode($userData['photo']));
-                exit(); // 
+                error_log('Entered Password: ' . $password);
+                error_log('Stored Password: ' . $passengerData['password']);
+
+            
+                header("Location: PassengerFlight.php?passenger_id=" . urlencode($passengerData['passengerID']));
+                exit();
             } else {
                 $message = 'Invalid email or password';
             }
         }
     } catch (Exception $e) {
-       
+        // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-       
+        // Close the database connection
         $conn = null;
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Authentication</title>
+    <title>Passenger Authentication</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -77,7 +86,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
 
-        input, select {
+        input,
+        select {
             width: calc(100% - 20px);
             padding: 10px;
             margin: 8px 0;
@@ -100,23 +110,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
 
-<h2>Welcome!</h2>
+    <h2>Welcome to Passenger Login!</h2>
 
-<!-- Display error message if any -->
-<p><?php echo $message; ?></p>
+    
+    <p><?php echo $message; ?></p>
 
 
-<form action="" method="post">
-    <label for="email">Enter Email:</label>
-    <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+    <form action="" method="post">
+        <label for="email">Enter Email:</label>
+        <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
 
-    <label for="password">Enter Password:</label>
-    <input type="password" id="password" name="password" required>
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" name="password" required>
 
-    <input type="submit" value="Submit">
-</form>
+        <input type="submit" value="Submit">
+    </form>
 
 </body>
+
 </html>

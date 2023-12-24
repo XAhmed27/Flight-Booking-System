@@ -7,19 +7,19 @@ use \Firebase\JWT\JWT;
 
 global $conn;
 
-// Initialize variables
+// ghzvariables
 $email = $password = $message = '';
 
-// Check if the form is submitted
+// Check if submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if email and password are set in the $_POST array
+    
     if (isset($_POST['email'], $_POST['password'])) {
         // Retrieve the submitted email and password
         $email = $_POST['email'];
         $password = $_POST['password'];
 
         try {
-            // Validate the user credentials
+            // Validation
             $getUserQuery = "SELECT * FROM users WHERE email = ?";
             $stmt = $conn->prepare($getUserQuery);
             $stmt->bind_param("s", $email);
@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($userResult->num_rows === 0) {
                 $message = 'Invalid credentials';
             } else {
-                // Fetch the user data
+                // Fetch 
                 $userData = $userResult->fetch_assoc();
 
                 // Verify the password
@@ -40,10 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     session_destroy();
                     session_start();
 
-                    // Set the new session data
+                    
                     $_SESSION['user'] = $userData;
 
-                    // Redirect based on the button clicked
                     if (isset($_POST['name_button'])) {
                         header("Location: Name.php");
                         exit();
@@ -53,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     } elseif (isset($_POST['tel_button'])) {
                         header("Location: Tel.php");
                         exit();
-                        // Add conditions for other buttons as needed
+                        
                     }
                 } else {
                     $message = 'Invalid credentials';
@@ -136,14 +135,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!-- Display error message if any -->
 <p><?php echo $message; ?></p>
 
-<!-- Form to enter email and password -->
+
 <form action="" method="post">
     <input type="email" name="email" placeholder="Enter your email" required>
     <input type="password" name="password" placeholder="Enter your password" required>
     <button type="submit" name="name_button">Login and go to Name</button>
     <button type="submit" name="email_button">Login and go to Email</button>
     <button type="submit" name="tel_button">Login and go to Tel</button>
-    <!-- Add buttons for other pages as needed -->
+
 </form>
 
 </body>

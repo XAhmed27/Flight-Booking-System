@@ -2,27 +2,28 @@
 require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
+
 use \Firebase\JWT\JWT;
 
 global $conn;
 
-// Initializing
-$email = $newEmail = $newTel = $password = $message = '';
-$userData = array();
+// Initialize variables
+$userEmail = $userPassword = $message = '';
+$passengerData = array();
 
 // Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    // Retrieve the submitted email and password
+    $userEmail = $_POST['email'];
+    $userPassword = $_POST['password'];
 
     try {
-        // Check if a user with the provided email exists
-        $getUserQuery = "SELECT u.*, p.PassportImg, p.photo FROM users u
-                         JOIN passenger p ON u.userID = p.userID
-                         WHERE u.email = ?";
+        $getUserQuery = "SELECT u.*, p.*
+            FROM users u
+            LEFT JOIN passenger p ON u.userID = p.userID
+            WHERE u.email = ?";
         $stmt = $conn->prepare($getUserQuery);
-        $stmt->bind_param("s", $email);
+        $stmt->bind_param("s", $userEmail);
         $stmt->execute();
         $userResult = $stmt->get_result();
 
@@ -32,25 +33,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Fetch user
             $userData = $userResult->fetch_assoc();
 
-            if (password_verify($password, $userData['password'])) {
-               
-                header("Location: MyProfile.php?email=" . urlencode($userData['email']) . "&name=" . urlencode($userData['name']) . "&tel=" . urlencode($userData['tel']) . "&balance=" . urlencode($userData['accountBalance']) . "&PassportImg=" . urlencode($userData['PassportImg']) . "&photo=" . urlencode($userData['photo']));
-                exit(); // 
+            if (!empty($userData['password']) && password_verify($userPassword, $userData['password'])) {
+                error_log('Entered Password: ' . $userPassword);
+                error_log('Stored Password: ' . $userData['password']);
+
+                //eb3t 3la url
+                header("Location: MyFlight.php?passenger_id=" . urlencode($userData['passengerID']));
+                exit();
             } else {
                 $message = 'Invalid email or password';
             }
         }
     } catch (Exception $e) {
-       
+        // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-       
-        $conn = null;
+t
+        $stmt->close();
+
+        $conn->close();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,7 +85,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
 
-        input, select {
+        input,
+        select {
             width: calc(100% - 20px);
             padding: 10px;
             margin: 8px 0;
@@ -100,23 +109,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
 
-<h2>Welcome!</h2>
+    <h2>Welcome to User Login!</h2>
 
-<!-- Display error message if any -->
-<p><?php echo $message; ?></p>
+    <p><?php echo $message; ?></p
+   
+    <form action="" method="post">
+        <label for="email">Enter Email:</label>
+        <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
 
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" name="password" required>
 
-<form action="" method="post">
-    <label for="email">Enter Email:</label>
-    <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
-
-    <label for="password">Enter Password:</label>
-    <input type="password" id="password" name="password" required>
-
-    <input type="submit" value="Submit">
-</form>
+        <input type="submit" value="Submit">
+    </form>
 
 </body>
+
 </html>

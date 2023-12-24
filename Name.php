@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Check if the user is authenticated
+// Check user auth
 if (!isset($_SESSION['user'])) {
     header("Location: auth.php");
     exit();

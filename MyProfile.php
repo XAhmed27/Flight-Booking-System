@@ -7,9 +7,9 @@ use \Firebase\JWT\JWT;
 global $conn;
 
 
-// Check if required parameters are present in the URL
+
 if (!isset($_GET['email']) || !isset($_GET['name']) || !isset($_GET['tel']) || !isset($_GET['balance'])) {
-    // Redirect to passengerinfo.php if parameters are missing
+    // Redirect to auth bta3ha
     header("Location: passengerinfo.php");
     exit();
 }
@@ -21,7 +21,7 @@ $telFromUrl = isset($_GET['tel']) ? urldecode($_GET['tel']) : '';
 $balanceFromUrl = isset($_GET['balance']) ? urldecode($_GET['balance']) : '';
 $userData = array();
 
-// Check if the form is submitted for updating user information
+// Check if the form is submitted 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     $newName = $_POST['newName'];
     $newTel = $_POST['newTel'];
@@ -29,13 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     $newPassword = $_POST['newPassword'];
 
     try {
-        // Update user information
+        // Update user info
         $updateQuery = "UPDATE users SET name = ?, tel = ?, accountBalance = ? WHERE email = ?";
         $stmt = $conn->prepare($updateQuery);
         $stmt->bind_param('ssds', $newName, $newTel, $newBalance, $emailFromUrl);
         $stmt->execute();
 
-        // Update password if a new password is provided
+        
         if (!empty($newPassword)) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             $updatePasswordQuery = "UPDATE users SET password = ? WHERE email = ?";
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             $stmtPassword->execute();
         }
 
-        // Redirect to the same page with updated parameters
+        // erf3 3la fooooo2
         header("Location: MyProfile.php?email=" . urlencode($emailFromUrl) . "&name=" . urlencode($newName) . "&tel=" . urlencode($newTel) . "&balance=" . urlencode($newBalance) . "&bankAccount=" . urlencode($bankAccountFromUrl));
         exit();
     } catch (Exception $e) {
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     }
 }
 
-// Fetch user data from the database based on the entered email
+// Fetch user data from the database 3la 7sb  email
 $selectQuery = "SELECT * FROM users WHERE email = ?";
 $stmt = $conn->prepare($selectQuery);
 $stmt->bind_param('s', $emailFromUrl);
@@ -155,7 +155,8 @@ $userData = $stmt->get_result()->fetch_assoc();
     <?php endif; ?>
 </div>
 
-<!-- Form to update user information -->
+<!-- Form to update user -->
+
 <form action="" method="post">
     <label for="newName">Update Name:</label>
     <input type="text" id="newName" name="newName" value="<?php echo htmlspecialchars($nameFromUrl); ?>" required>
@@ -163,16 +164,16 @@ $userData = $stmt->get_result()->fetch_assoc();
     <label for="newTel">Update Telephone:</label>
     <input type="text" id="newTel" name="newTel" value="<?php echo htmlspecialchars($telFromUrl); ?>" required>
 
-    <label for="newBalance">Update Balance:</label>
-    <input type="text" id="newBalance" name="newBalance" value="<?php echo htmlspecialchars($userData['accountBalance']); ?>" required>
+    <!-- Removed the accountBalance update -->
+    <!-- <label for="newBalance">Update Balance:</label>
+    <input type="text" id="newBalance" name="newBalance" value="<?php echo htmlspecialchars($userData['accountBalance']); ?>" required> -->
 
     <label for="newPassword">Update Password:</label>
     <input type="password" id="newPassword" name="newPassword">
 
     <input type="submit" name="update" value="Update">
-
-   
 </form>
+
 <a href="PassengerHome.php" class="nav-button">Back to Passenger Home</a>
 
 </body>

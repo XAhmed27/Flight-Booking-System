@@ -25,25 +25,25 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
             $response['success'] = false;
             $response['message'] = 'User not found';
         } else {
-            // Fetch the user data
+         
             $user = $userResult->fetch_assoc();
 
-            // Verify the password
+           
             if (password_verify($password, $user['password'])) {
-                // Password is correct, proceed with authentication
+               
 
-                // Generate JWT token with the user's email
-                $jwtSecretKey = 'your_secret_key'; // Replace with your actual secret key
+              
+                $jwtSecretKey = 'your_secret_key'; 
                 $tokenPayload = array("email" => $email);
                 $token = JWT::encode($tokenPayload, $jwtSecretKey);
 
-                // You can store the token in a secure manner or send it to the client as needed
+                
 
                 $response['success'] = true;
                 $response['message'] = 'Sign-in successful';
                 $response['token'] = $token;
 
-                // Send the Authorization header
+              
                 header("Authorization: Bearer " . $token);
                 
             } else {
@@ -53,17 +53,17 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
         }
         
     } catch (Exception $exception) {
-        // Include the specific exception message in the response
+        
         $response['success'] = false;
         $response['message'] = $exception->getMessage();
     }
 }
 
-// Display the result on the same page
+
 ?>
 
 <!DOCTYPE html>
-<!--<html lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -138,16 +138,15 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 </form>
 
 <div id="result">
-    <?php /*if ($response['success']): */?>
-        <p class="success"><?php /*echo $response['message']; */?></p>
-        <?php /*if ($response['token'] !== null): */?>
-            <p>Token: <?php /*echo $response['token']; */?></p>
-        <?php /*endif; */?>
-    <?php /*else: */?>
-        <p class="error"><?php /*echo $response['message']; */?></p>
-    <?php /*endif; */?>
+    <?php if ($response['success']): ?>
+        <p class="success"><?php echo $response['message']; ?></p>
+        <?php if ($response['token'] !== null): ?>
+            <p>Token: <?php echo $response['token']; ?></p>
+        <?php endif; ?>
+    <?php else: ?>
+        <p class="error"><?php echo $response['message']; ?></p>
+    <?php endif; ?>
 </div>
 
 </body>
 </html>
--->

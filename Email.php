@@ -8,7 +8,7 @@ global $conn;
 
 session_start();
 
-// Check if the user is authenticated
+// check Auth
 if (!isset($_SESSION['user'])) {
     header("Location: auth.php");
     exit();
@@ -65,7 +65,7 @@ $userData = $_SESSION['user'];
 
 <h2>User Email</h2>
 
-<!-- Display user data -->
+<!-- Display userData -->
 <p>Email: <?php echo htmlspecialchars($userData['email']); ?></p>
 
 <!-- Navigation button to go back to Passenger Home -->
