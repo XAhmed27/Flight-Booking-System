@@ -6,7 +6,7 @@
 }
 
 body {
-    background: #f6f5f7;
+    background: #661cb1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,6 +14,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     height: 100vh;
     margin: -20px 0 50px;
+
 }
 
 h1 {
@@ -160,9 +161,9 @@ input {
 }
 
 .overlay {
-    background: #000000;
+    /* background: #000000;
     background: -webkit-linear-gradient(to right, #000000, #347681);
-    background: linear-gradient(to right, #222121, #41e9ff);
+    background: linear-gradient(to right, #222121, #41e9ff); */
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 0 0;
@@ -252,8 +253,8 @@ footer a {
 }
 
 #container {
-    height:  80% ;
-    width: 80%;
+    height:  100% ;
+    width: 100%;
     margin: auto;
 }
 
@@ -265,8 +266,7 @@ footer a {
 
 .form-container input,
 .form-container select {
-
-    width: 100%;
+    width: 50%;
     padding: 10px;
     font-size: 11px;
     margin-bottom: 15px;
@@ -274,6 +274,17 @@ footer a {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
+
+#typeSele{
+    width: 50%;
+}
+.option{
+    font-weight: bold;
+    font-size: 20px;
+}
+
+
 #user option {
     width: 100%;
     background: #222;
@@ -284,5 +295,5 @@ footer a {
 .overlay img {
     width: 100%;
     height: 100%;
-    object-fit: fill;
+    object-fit: cover;
 }
