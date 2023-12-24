@@ -1,7 +1,7 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+require_once '../../vendor/autoload.php';
+require_once '../../errorhandling.php';
+require_once '../../connection.php';
 use \Firebase\JWT\JWT;
 
 global $conn;

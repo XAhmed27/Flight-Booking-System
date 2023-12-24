@@ -1,7 +1,7 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+require_once '../../vendor/autoload.php';
+require_once '../../errorhandling.php';
+require_once '../../connection.php';
 
 use \Firebase\JWT\JWT;
 
@@ -63,10 +63,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             align-items: center;
             height: 100vh;
+            width: 100vw;
+            background-image: url('../../assets/flyy.jpg');
+            background-size: cover;
         }
 
         form {
+            /*
             background-color: #fff;
+            */
+            background-color: rgba(255, 255, 255, 0.3);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -79,16 +85,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 10px;
             margin: 8px 0;
             box-sizing: border-box;
+            background-color: transparent; /* Transparent background for input */
+            border: 1px solid #ccc; /* Rectangle border with a light gray color */
+            border-radius: 4px;
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
     </style>
 </head>

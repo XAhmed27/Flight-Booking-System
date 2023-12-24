@@ -1,68 +1,50 @@
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="login.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-HcPzTq9ccBqylUouTkTYCElAgMnbQIlCQnOQxVlxeE0eLKOlBr35yB3gPZZ4nCC" crossorigin="anonymous">
-    <script src="login.js" defer></script>
-
-
-    <title>User Sign In</title>
 
 </head>
+
 <body>
 
-<div class="form-container sign-in-container">
-    <form action="#">
-        <h1>Sign in</h1>
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
-        <a href="#">Forgot your password?</a>
-        <button>LOGIN IN</button>
-    </form>
-</div>
+<div class="login-container">
+    <h2 style="color: white; font-size: 30px;">Login</h2>
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
-<div class="overlay-container">
-    <div class="overlay">
-        <img src="/assets/air3.jpg">
-<!--        <div class="overlay-panel overlay-left">-->
-<!--            <h1>Welcome back to our flight booking reservation</h1>-->
-<!--            <p>To keep connected with us please login with your personal info</p>-->
-<!--            <button class="ghost" id="signIn" onclick="window.location.href='../Login/login.ui.php'">LOGIN IN</button>-->
-<!--        </div>-->
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
 
-        <div class="overlay-panel overlay-right">
-            <h1>Hello, Friend!</h1>
-            <p>Enter your personal details and start journey with us</p>
-            <button class="ghost" id="signUp" onclick="window.location.href='../Register/register.ui.php'">Register</button>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <div>
+            <label>
+                <select name="userType"
+                        style="background-color: transparent ;color: white ; border-radius: 15px; padding: 4px">
+                    <!-- <option selected disabled>Gander</option> -->
+                    <option style="color: black" selected value="company">Company</option>
+                    <option style="color: black" value="passenger">Passenger</option>
+                </select>
+            </label>
+        </div>
+        <div class="div-button">
+            <button class="login-button" type="submit">Login</button>
         </div>
 
-    </div>
-</div>
+        <a class="register-button" href="../../features/register/register.ui.php">Don't have an account ?
+            Register</a>
 
+    </form>
 
-<div id="result">
-    <?php /*if ($response['success']): */?>
-        <p class="success"><?php /*echo $response['message']; */?></p>
-        <?php /*if ($response['token'] !== null): */?>
-            <p>Token: <?php /*echo $response['token']; */?></p>
-        <?php /*endif; */?>
-    <?php /*else: */?>
-        <p class="error"><?php /*echo $response['message']; */?></p>
-    <?php /*endif; */?>
+    <?php
+    // Include the PHP file
+    include('login.php');
+    ?>
+
 </div>
-<footer>
-    <p>
-        Created with <i class="fa fa-heart"></i> by
-        <a target="_blank" href="https://florin-pop.com">Florin Pop</a>
-        - Read how I created this and how you can join the challenge
-        <a target="_blank" href="https://www.florin-pop.com/blog/2019/03/double-slider-sign-in-up-form/">here</a>.
-    </p>
-</footer>
 </body>
+
 </html>
-
-
-
-    

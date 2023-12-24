@@ -1,7 +1,7 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+require_once '../../vendor/autoload.php';
+require_once '../../errorhandling.php';
+require_once '../../connection.php';
 use \Firebase\JWT\JWT;
 
 $userId = $_GET['userId'] ?? 0;
@@ -58,7 +58,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex;
             justify-content: center;
             align-items: center;
+            background-image: url('../../assets/flyy.jpg');
+            background-size: cover;
             height: 100vh;
+            width: 100vw;
         }
 
         form {

@@ -1,7 +1,7 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+require_once '../../vendor/autoload.php';
+require_once '../../errorhandling.php';
+require_once '../../connection.php';
 use \Firebase\JWT\JWT;
 
 global $conn;
@@ -40,10 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Redirect to the corresponding form based on the role
         if ($role === 'passenger') {
-            header("Location: passenger_form2.php?userId=$newUserId");
+            header("Location: ../Form-Info-Passenger/passenger_form2.php?userId=$newUserId");
             exit();
         } elseif ($role === 'company') {
-            header("Location: company_form2.php?userId=$newUserId");
+            header("Location: ../Form-Info-Company/company_form2.php?userId=$newUserId");
             exit();
         }
     } catch (Exception $exception) {
