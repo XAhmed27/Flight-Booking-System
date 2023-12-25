@@ -7,116 +7,67 @@ use \Firebase\JWT\JWT;
 
 global $conn;
 
-// Check if required parameters are present in the URL
-if (!isset($_GET['name']) || !isset($_GET['bio']) || !isset($_GET['address']) || !isset($_GET['username']) || !isset($_GET['location']) || !isset($_GET['tel']) || !isset($_GET['accountBalance'])) {
-    // Redirect to companyinfo.php if parameters are missing
-    header("Location: companyinfo.php");
-    exit();
-}
-
 // Initialize variables
-$nameFromUrl = $_GET['name'];
-$bioFromUrl = $_GET['bio'];
-$addressFromUrl = $_GET['address'];
-$usernameFromUrl = $_GET['username'];
-$locationFromUrl = $_GET['location'];
-$telFromUrl = $_GET['tel'];
-$accountBalanceFromUrl = $_GET['accountBalance'];
+$email = $password = $message = '';
 $companyData = array();
 
-// Initialize password-related variables
-$newName = $newBio = $newAddress = $newUsername = $newLocation = $newPassword = '';
-$message = $passwordMessage = '';
-
-$updateCompanyQuery = $updateUserQuery = $updatePasswordQuery = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
-    $newName = $_POST['newName'];
-    $newBio = $_POST['newBio'];
-    $newAddress = $_POST['newAddress'];
-    $newUsername = $_POST['newUsername'];
-    $newLocation = $_POST['newLocation'];
-    $newPassword = $_POST['newPassword'];
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve the submitted email and password
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
     try {
-        $selectQuery = "SELECT userID FROM company WHERE bio = ? AND address = ? AND username = ?";
-        $stmtSelect = $conn->prepare($selectQuery);
-        $stmtSelect->bind_param('sss', $bioFromUrl, $addressFromUrl, $usernameFromUrl);
-        $stmtSelect->execute();
-        $resultSelect = $stmtSelect->get_result();
+        // Check if a user with the provided email exists in the company table
+        $getCompanyQuery = "SELECT u.name, u.email, u.tel, u.accountBalance, u.password , c.* FROM users u
+        JOIN company c ON u.userID = c.userID
+        WHERE u.email = ?";
+        $stmt = $conn->prepare($getCompanyQuery);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $companyResult = $stmt->get_result();
 
-        // Fetch the result
-        $companyData = $resultSelect->fetch_assoc();
-
-        // Check if data is found
-        if ($companyData) {
-            // Update company information
-            $updateCompanyQuery = "UPDATE company SET bio = ?, username = ?, address = ?, location = ? WHERE userID = ?";
-            $stmtCompany = $conn->prepare($updateCompanyQuery);
-            $stmtCompany->bind_param('ssssi', $newBio, $newUsername, $newAddress, $newLocation, $companyData['userID']);
-            $stmtCompany->execute();
-            if ($stmtCompany->execute() === FALSE) {
-                error_log("Company Update Error: " . $stmtCompany->error);
-            }
-
-            // Update user information
-            $updateUserQuery = "UPDATE users SET name = ?, tel = ?, accountBalance = ? WHERE userID = ?";
-            $stmtUser = $conn->prepare($updateUserQuery);
-            $stmtUser->bind_param('sdsi', $newName, $telFromUrl, $accountBalanceFromUrl, $companyData['userID']);
-            $stmtUser->execute();
-            if ($stmtUser->execute() === FALSE) {
-                error_log("User Update Error: " . $stmtUser->error);
-            }
-
-            // Update password if a new password is provided
-            if (!empty($newPassword)) {
-                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                $updatePasswordQuery = "UPDATE users SET password = ? WHERE userID = ?";
-                $stmtPassword = $conn->prepare($updatePasswordQuery);
-                $stmtPassword->bind_param('si', $hashedPassword, $companyData['userID']);
-                $stmtPassword->execute();
-                $passwordMessage = 'Password updated successfully.';
-            }
-
-
-            // Redirect to the same page with updated parameters
-            header("Location: CompanyProfile.php?name=" . urlencode($newName) . "&bio=" . urlencode($newBio) . "&address=" . urlencode($newAddress) . "&username=" . urlencode($newUsername) . "&location=" . urlencode($newLocation) . "&tel=" . urlencode($telFromUrl) . "&accountBalance=" . urlencode($accountBalanceFromUrl));
-            exit();
+        if ($companyResult->num_rows === 0) {
+            $message = 'Company not found';
         } else {
-            // Handle the case when no data is found
-            $message = 'Failed to update company information. User not found.';
+            // Fetch the user and company data
+            $companyData = $companyResult->fetch_assoc();
+
+            // Verify the password
+            if (!empty($companyData['password']) && password_verify($password, $companyData['password'])) {
+                // Log both entered password and stored password
+                error_log('Entered Password: ' . $password);
+                error_log('Stored Password: ' . $companyData['password']);
+
+                // Password is correct, proceed with displaying company information
+                header("Location: CompanyProfile.php?name=" . urlencode($companyData['name']) . "&bio=" . urlencode($companyData['bio']) . "&address=" . urlencode($companyData['address']) . "&username=" . urlencode($companyData['username']) . "&location=" . urlencode($companyData['location']) . "&tel=" . urlencode($companyData['tel']) . "&accountBalance=" . urlencode($companyData['accountBalance']));
+                exit();
+            } else {
+                $message = 'Invalid email or password';
+            }
         }
     } catch (Exception $e) {
         // Handle any exceptions
-        $message = 'Failed to update company information. Error: ' . $e->getMessage();
-        // Log the error
-        error_log("Error: " . $e->getMessage());
+        $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-        // Log queries and errors
-        error_log("Update Company Query: $updateCompanyQuery");
-        error_log("Update User Query: $updateUserQuery");
-        error_log("Update Password Query: $updatePasswordQuery");
-        error_log("Error: " . $conn->error);
-
         // Close the database connection
-        $conn->close();
+        $conn = null;
     }
 }
-
-// Display company data if available in CompanyProfile.php
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Company Profile</title>
+    <title>Company Authentication</title>
     <style>
-        /* Add your styles here */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
             margin: 0;
             padding: 0;
             display: flex;
@@ -125,37 +76,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             height: 100vh;
         }
 
-        div {
-            background-color: #fff;
+        form {
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 400px;
-            margin: 20px auto;
+            margin-bottom: 20px;
             text-align: center;
         }
 
-        h2 {
-            color: #333;
-        }
-
-        p {
-            margin: 8px 0;
-            color: #555;
-        }
-
-        form {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
         input,
-        textarea {
+        select {
             width: calc(100% - 20px);
             padding: 10px;
             margin: 8px 0;
@@ -163,90 +96,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
-        a.nav-button {
-            display: block;
-            background-color: #2196F3;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            text-decoration: none;
-            width: 200px;
-            text-align: center;
-            font-size: 16px;
+        h2 {
+            margin-right: 10px;
         }
 
-        a.nav-button:hover {
-            background-color: #0b7dda;
-        }
-
-        .password-message {
-            color: green;
-        }
-
-        .error-message {
+        p {
             color: red;
+            margin-top: 10px;
         }
     </style>
 </head>
 
 <body>
 
-<div>
-    <h2>Company Information</h2>
-    <p>Name: <?php echo htmlspecialchars($nameFromUrl); ?></p>
-    <p>Bio: <?php echo htmlspecialchars($bioFromUrl); ?></p>
-    <p>Address: <?php echo htmlspecialchars($addressFromUrl); ?></p>
-    <p>Username: <?php echo htmlspecialchars($usernameFromUrl); ?></p>
-    <p>Location: <?php echo htmlspecialchars($locationFromUrl); ?></p>
-    <p>Tel: <?php echo htmlspecialchars($telFromUrl); ?></p>
-    <p>Account Balance: <?php echo htmlspecialchars($accountBalanceFromUrl); ?></p>
+<h2>Welcome to Company Login!</h2>
 
-    <!-- Display password update message if any -->
-    <p class="password-message"><?php echo $passwordMessage; ?></p>
+<!-- Display error message if any -->
+<p><?php echo $message; ?></p>
 
-    <!-- Display general update message or error message if any -->
-    <p class="error-message"><?php echo $message; ?></p>
-
-</div>
-
-<!-- Form to update company information -->
+<!-- Add a form to enter email and password -->
 <form action="" method="post">
-    <label for="newName">Update Name:</label>
-    <input type="text" id="newName" name="newName" value="<?php echo htmlspecialchars($nameFromUrl); ?>" required>
+    <label for="email">Enter Email:</label>
+    <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
 
-    <label for="newBio">Update Bio:</label>
-    <textarea id="newBio" name="newBio" required><?php echo htmlspecialchars($bioFromUrl); ?></textarea>
+    <label for="password">Enter Password:</label>
+    <input type="password" id="password" name="password" required>
 
-    <label for="newAddress">Update Address:</label>
-    <input type="text" id="newAddress" name="newAddress" value="<?php echo htmlspecialchars($addressFromUrl); ?>" required>
-
-    <label for="newUsername">Update Username:</label>
-    <input type="text" id="newUsername" name="newUsername" value="<?php echo htmlspecialchars($usernameFromUrl); ?>" required>
-
-    <label for="newLocation">Update Location:</label>
-    <input type="text" id="newLocation" name="newLocation" value="<?php echo htmlspecialchars($locationFromUrl); ?>" required>
-
-    <!-- Add password input -->
-    <label for="newPassword">Update Password:</label>
-    <input type="password" id="newPassword" name="newPassword">
-
-    <input type="submit" name="update" value="Update">
+    <input type="submit" value="Submit">
 </form>
-
-<a href="CompanyHome.php" class="nav-button">Back to Company Home</a>
-<a href="FlightLists.php" class="nav-button">flightlists</a>
 
 </body>
 
