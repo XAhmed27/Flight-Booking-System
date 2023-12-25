@@ -2,7 +2,6 @@
 require_once '../../vendor/autoload.php';
 require_once '../../errorhandling.php';
 require_once '../../connection.php';
-use \Firebase\JWT\JWT;
 
 $userId = $_GET['userId'] ?? 0;
 
@@ -20,20 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtPassenger->bind_param("iss", $userId, $passportImg, $photo);
         $stmtPassenger->execute();
 
-        // Generate and return token
-        $secretKey = 'your_secret_key'; // Replace with a secure secret key
-        $issuedAt = time();
-        $expirationTime = $issuedAt + 3600; // Token valid for 1 hour
-        $tokenPayload = [
-            'user_id' => $userId,
-            'iat' => $issuedAt,
-            'exp' => $expirationTime,
-        ];
+        header("Location: ../../../PassengerHome.php");
 
-        $generatedToken = JWT::encode($tokenPayload, $secretKey, 'HS256');
 
-        // Return the token as part of the response
-        echo json_encode(['message' => 'Passenger information saved successfully!', 'token' => $generatedToken]);
         exit();
     } catch (Exception $exception) {
         // Call handleGlobalError in case of an exception
