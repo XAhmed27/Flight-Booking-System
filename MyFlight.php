@@ -6,8 +6,10 @@ require_once 'connection.php';
 use \Firebase\JWT\JWT;
 
 global $conn;
+//var_dump($_GET);
+
 if (!isset($_GET['passenger_id'])) {
-    // at2kd el awl 
+    // Redirect to MyFlightAuth.php if passengerid or other parameters are missing
     header("Location: MyFlightAuth.php");
     exit();
 }
@@ -17,10 +19,10 @@ $passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
 $flightsData = array();
 $message = '';
 
-// Check if the passenger ID is in
+// Check if the passenger ID is provided in the URL
 if (!empty($passengerID)) {
     try {
-        
+        // Retrieve flights for the given passenger ID
         $getFlightsQuery = "SELECT f.*
             FROM flight f
             JOIN passenger_flight pf ON f.flightID = pf.flightID
@@ -38,14 +40,14 @@ if (!empty($passengerID)) {
             $flightsData[$flightID]['flight_from'] = $row['flight_from'];
             $flightsData[$flightID]['flight_to'] = $row['flight_to'];
             $flightsData[$flightID]['startTime'] = $row['endTime'];
-            
+            // Add more flight-related fields as needed
         }
 
         // Close the statement
         $stmt->close();
 
     } catch (Exception $e) {
-        
+        // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
         // Close the database connection
@@ -107,25 +109,28 @@ if (!empty($passengerID)) {
 
 <body>
 
-    <h2>My Flights</h2>
+<h2>My Flights</h2>
 
-    <p class="message"><?php echo $message; ?></p>
+<!-- Display error or success message -->
+<p class="message"><?php echo $message; ?></p>
 
-    <?php if (!empty($flightsData)): ?>
-        <div>
-            <ul>
-                <?php foreach ($flightsData as $flight): ?>
-                    <li>
-                        <strong>Flight ID:</strong> <?php echo $flight['flightID']; ?><br>
-                        <strong>Name:</strong> <?php echo $flight['name']; ?><br>
-                        <strong>Flight From:</strong> <?php echo $flight['flight_from']; ?><br>
-                        <strong>Flight To:</strong> <?php echo $flight['flight_to']; ?><br>
-                        <strong>Start Time:</strong> <?php echo $flight['startTime']; ?><br>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
+<!-- Display flights information -->
+<?php if (!empty($flightsData)): ?>
+    <div>
+        <ul>
+            <?php foreach ($flightsData as $flight): ?>
+                <li>
+                    <strong>Flight ID:</strong> <?php echo $flight['flightID']; ?><br>
+                    <strong>Name:</strong> <?php echo $flight['name']; ?><br>
+                    <strong>Flight From:</strong> <?php echo $flight['flight_from']; ?><br>
+                    <strong>Flight To:</strong> <?php echo $flight['flight_to']; ?><br>
+                    <strong>Start Time:</strong> <?php echo $flight['startTime']; ?><br>
+                    <!-- Add more flight-related fields as needed -->
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
 
 </body>
 
