@@ -19,25 +19,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $logoImg = $_POST['logoImg'];
 
         // Insert company data
+
         $insertCompanyQuery = "INSERT INTO company (userID, bio, username, address, location, logoImg) VALUES (?, ?, ?, ?, ?, ?)";
         $stmtCompany = $conn->prepare($insertCompanyQuery);
         $stmtCompany->bind_param("isssss", $userId, $bio, $username, $address, $location, $logoImg);
         $stmtCompany->execute();
 
-        // Generate and return token
-        $secretKey = 'your_secret_key'; // Replace with a secure secret key
-        $issuedAt = time();
-        $expirationTime = $issuedAt + 3600; // Token valid for 1 hour
-        $tokenPayload = [
-            'user_id' => $userId,
-            'iat' => $issuedAt,
-            'exp' => $expirationTime,
-        ];
+        //*Get CompanyID To set in cookies
+        $getCompanyIdQuery = "SELECT companyID FROM company WHERE userID=?";
+        $stmtCompany = $conn->prepare($getCompanyIdQuery);
+        if (!$stmtCompany) {
+            die("Error in preparing the statement: " . $conn->error);
+        }
 
-        $generatedToken = JWT::encode($tokenPayload, $secretKey, 'HS256');
+        $stmtCompany->bind_param("i", $userId);
 
-        // Return the token as part of the response
-        echo json_encode(['message' => 'Company information saved successfully!', 'token' => $generatedToken]);
+        if (!$stmtCompany->execute()) {
+            die("Error in executing the statement: " . $stmtCompany->error);
+        }
+
+        $stmtCompany->bind_result($companyId);
+        $stmtCompany->fetch();
+        $stmtCompany->close();
+
+        //*Set cookies
+        setcookie('id', $companyId, time() + 3600 *24,'/');
+        $id = $_COOKIE['id'];
+
+        header("Location: CompanyHome.php");
+        echo json_encode(['Hola' => 'Metwally m3lm!']);
         exit();
     } catch (Exception $exception) {
         // Call handleGlobalError in case of an exception
@@ -48,6 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -91,17 +102,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #45a049;
         }
     </style>
+
 </head>
+
 <body>
 
-<form id="companyForm" action="" method="post">
-    Bio: <input type="text" name="bio" required><br>
-    Address: <input type="text" name="address" required><br>
-    Location: <input type="text" name="location" required><br>
-    Username: <input type="text" name="username" required><br>
-    Logo Img: <input type="text" name="logoImg" required><br>
-    <input type="submit" value="Submit Company Info">
-</form>
+    <form id="companyForm" action="" method="post">
+        Bio: <input type="text" name="bio" required><br>
+        Address: <input type="text" name="address" required><br>
+        Location: <input type="text" name="location" required><br>
+        Username: <input type="text" name="username" required><br>
+        Logo Img: <input type="text" name="logoImg" required><br>
+        <input type="submit" value="Submit Company Info">
+    </form>
 
 </body>
+
 </html>

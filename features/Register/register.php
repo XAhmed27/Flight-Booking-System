@@ -40,9 +40,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Redirect to the corresponding form based on the role
         if ($role === 'passenger') {
+
             header("Location: ../Form-Info-Passenger/passenger_form2.php?userId=$newUserId");
             exit();
         } elseif ($role === 'company') {
+
             header("Location: ../Form-Info-Company/company_form2.php?userId=$newUserId");
             exit();
         }
