@@ -79,7 +79,8 @@ if (!empty($passengerID)) {
         }
 
         div {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
