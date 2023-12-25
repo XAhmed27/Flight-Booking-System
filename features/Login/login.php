@@ -2,7 +2,7 @@
 require_once '../../vendor/autoload.php';
 require_once '../../errorhandling.php';
 require_once '../../connection.php';
-use \Firebase\JWT\JWT;
+
 
 global $conn;
 
@@ -31,27 +31,48 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
             // Verify the password
             if (password_verify($password, $user['password'])) {
                 // Password is correct, proceed with authentication
+                if ($user['role'] == 'company') {
+                    $getRoleIdQuery = "SELECT companyID FROM company WHERE userID=?";
+                } else {
+                    $getRoleIdQuery = "SELECT passengerID FROM passenger WHERE userID=?";
+                }
+                //*Set cookies
+                //*Get Role To set in cookies
+                $stmtRole = $conn->prepare($getRoleIdQuery);
+                if (!$stmtRole) {
+                    die("Error in preparing the statement: " . $conn->error);
+                }
+                $userId= $user['userID'];
+                $stmtRole->bind_param("i", $userId);
 
-                // Generate JWT token with the user's email
-                $jwtSecretKey = 'your_secret_key'; // Replace with your actual secret key
-                $tokenPayload = array("email" => $email);
-                $token = JWT::encode($tokenPayload, $jwtSecretKey);
+                if (!$stmtRole->execute()) {
+                    die("Error in executing the statement: " . $stmtRole->error);
+                }
 
-                // You can store the token in a secure manner or send it to the client as needed
+                $stmtRole->bind_result($RoleId);
+                $stmtRole->fetch();
+                $stmtRole->close();
+                // Using echo
 
-                $response['success'] = true;
-                $response['message'] = 'Sign-in successful';
-                $response['token'] = $token;
+                // Using print
+                // print $RoleId;
+                setcookie('id',$RoleId , time() + 3600 * 24, '/');
+                echo " <h1>enter<h1>";
+                echo  $_COOKIE['id'];
 
-                // Send the Authorization header
-                header("Authorization: Bearer " . $token);
 
+                if ($user['role'] == 'company') {
+                    header("Location: ../Home-Company/CompanyHome.php");
+                    exit();
+                } else {
+                    header("Location: ../../../PassengerHome.php");
+                    exit();
+                }
             } else {
                 $response['success'] = false;
                 $response['message'] = 'Invalid password';
             }
         }
-
     } catch (Exception $exception) {
         // Include the specific exception message in the response
         $response['success'] = false;
@@ -138,14 +159,14 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST") {
 </form>
 
 <div id="result">
-    <?php /*if ($response['success']): */?>
-        <p class="success"><?php /*echo $response['message']; */?></p>
-        <?php /*if ($response['token'] !== null): */?>
-            <p>Token: <?php /*echo $response['token']; */?></p>
-        <?php /*endif; */?>
-    <?php /*else: */?>
-        <p class="error"><?php /*echo $response['message']; */?></p>
-    <?php /*endif; */?>
+    <?php /*if ($response['success']): */ ?>
+        <p class="success"><?php /*echo $response['message']; */ ?></p>
+        <?php /*if ($response['token'] !== null): */ ?>
+            <p>Token: <?php /*echo $response['token']; */ ?></p>
+        <?php /*endif; */ ?>
+    <?php /*else: */ ?>
+        <p class="error"><?php /*echo $response['message']; */ ?></p>
+    <?php /*endif; */ ?>
 </div>
 
 </body>

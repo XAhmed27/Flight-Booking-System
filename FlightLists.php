@@ -66,20 +66,31 @@ require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
 
-use \Firebase\JWT\JWT;
 
 global $conn;
+
+
+
+$companyId = $_COOKIE['id'];
+
 
 //  flights data from the database
 function getFlightsData()
 {
     global $conn;
+    $companyId = $_COOKIE['id'];
+    echo "<p>$companyId<p>";
 
     try {
         $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime
-                  FROM flight";
+                  FROM flight WHERE companyID=?";
 
         $stmt = $conn->prepare($query);
+        echo "<p>$companyId<p>";
+
+
+        $stmt->bind_param("i", $companyId);
+
         $stmt->execute();
         $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime);
 
