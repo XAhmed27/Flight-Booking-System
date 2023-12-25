@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     try {
         // Check if a user with the provided email exists in the users table
-        $getUserQuery = "SELECT u., p.
+        $getUserQuery = "SELECT u.*, p.*
             FROM users u
             LEFT JOIN passenger p ON u.userID = p.userID
             WHERE u.email = ?";
@@ -27,6 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("s", $userEmail);
         $stmt->execute();
         $userResult = $stmt->get_result();
+
+
 
         if ($userResult->num_rows === 0) {
             $message = 'User not found';
@@ -130,6 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input type="password" id="password" name="password" required>
 
     <input type="submit" value="Submit">
+
 </form>
 
 </body>
