@@ -4,14 +4,15 @@ require_once 'errorhandling.php';
 require_once 'connection.php';
 
 // Function to get flights data from the database based on search criteria
-function searchFlights($from, $to) {
+function searchFlights($from, $to)
+{
     global $conn;
 
     try {
         $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime
                   FROM flight
-                  WHERE flight_from = ? AND flight_to = ?"; 
-    
+                  WHERE flight_from = ? AND flight_to = ?";
+
         $stmt = $conn->prepare($query);
         $stmt->bind_param('ss', $from, $to);
         $stmt->execute();
@@ -64,9 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         h3 {
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
             text-align: center;
             margin-bottom: 20px;
         }
@@ -87,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .button-link {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             padding: 10px;
             border: none;
@@ -98,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .button-link:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         .search-container {
@@ -114,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .search-btn {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             border: none;
             padding: 10px;
@@ -123,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .search-btn:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
     </style>
 </head>
@@ -166,4 +171,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
-

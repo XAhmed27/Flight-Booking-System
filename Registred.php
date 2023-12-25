@@ -15,10 +15,13 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -34,13 +37,13 @@
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         .error {
@@ -56,76 +59,76 @@
 </head>
 
 <body>
-    <?php
-    require_once 'vendor/autoload.php';
-    require_once 'errorhandling.php';
-    require_once 'connection.php';
+<?php
+require_once 'vendor/autoload.php';
+require_once 'errorhandling.php';
+require_once 'connection.php';
 
-    use \Firebase\JWT\JWT;
+use \Firebase\JWT\JWT;
 
-    global $conn;
+global $conn;
 
-    // Handle form submission
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
 
-        try {
-            // Check if a  username exists in the company table
-            $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
-            $stmtCompany = $conn->prepare($getCompanyIdQuery);
-            $stmtCompany->bind_param("s", $username);
-            $stmtCompany->execute();
-            $resultCompany = $stmtCompany->get_result();
+    try {
+        // Check if a  username exists in the company table
+        $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
+        $stmtCompany = $conn->prepare($getCompanyIdQuery);
+        $stmtCompany->bind_param("s", $username);
+        $stmtCompany->execute();
+        $resultCompany = $stmtCompany->get_result();
 
-            if ($resultCompany->num_rows === 1) {
-            
-                $rowCompany = $resultCompany->fetch_assoc();
-                $companyID = $rowCompany['companyID'];
+        if ($resultCompany->num_rows === 1) {
 
-                // Retrieve pending passengers for the specified company
-                $getPendingPassengersQuery = "SELECT u.name AS passengerName
+            $rowCompany = $resultCompany->fetch_assoc();
+            $companyID = $rowCompany['companyID'];
+
+            // Retrieve pending passengers for the specified company
+            $getPendingPassengersQuery = "SELECT u.name AS passengerName
                     FROM users u
                     INNER JOIN passenger p ON u.userID = p.userID
                     INNER JOIN passenger_flight pf ON p.passengerID = pf.passengerID
                     WHERE   pf.passengerStatus = 'registered'";
 
-                $getPendingPassengersStmt = $conn->prepare($getPendingPassengersQuery);
-                $getPendingPassengersStmt->execute();
-                $pendingPassengersResult = $getPendingPassengersStmt->get_result();
+            $getPendingPassengersStmt = $conn->prepare($getPendingPassengersQuery);
+            $getPendingPassengersStmt->execute();
+            $pendingPassengersResult = $getPendingPassengersStmt->get_result();
 
-                if ($pendingPassengersResult->num_rows > 0) {
-                    // Display pending passengers
-                    echo '<div class="success">';
-                    echo '<h3>Pending Passengers for Company Name ' . $username . '</h3>';
-                    while ($pendingPassenger = $pendingPassengersResult->fetch_assoc()) {
-                        echo '<div>';
-                        echo '<strong>Passenger Name:</strong> ' . $pendingPassenger['passengerName'] . '<br>';
-                        echo '</div><br>';
-                    }
-                    echo '</div>';
-                } else {
-                    echo '<p class="success">No Registred passengers found for this company.</p>';
+            if ($pendingPassengersResult->num_rows > 0) {
+                // Display pending passengers
+                echo '<div class="success">';
+                echo '<h3>Pending Passengers for Company Name ' . $username . '</h3>';
+                while ($pendingPassenger = $pendingPassengersResult->fetch_assoc()) {
+                    echo '<div>';
+                    echo '<strong>Passenger Name:</strong> ' . $pendingPassenger['passengerName'] . '<br>';
+                    echo '</div><br>';
                 }
-
-                $getPendingPassengersStmt->close();
+                echo '</div>';
             } else {
-                echo '<p class="error">Company not found.</p>';
+                echo '<p class="success">No Registred passengers found for this company.</p>';
             }
 
-            $stmtCompany->close();
-        } catch (PDOException $e) {
-            echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
+            $getPendingPassengersStmt->close();
+        } else {
+            echo '<p class="error">Company not found.</p>';
         }
+
+        $stmtCompany->close();
+    } catch (PDOException $e) {
+        echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
     }
-    ?>
+}
+?>
 
-   
-    <form action="" method="post">
-        <label for="username">Enter Username:</label>
-        <input type="text" id="username" name="username" required><br>
 
-        <input type="submit" value="Submit">
-    </form>
+<form action="" method="post">
+    <label for="username">Enter Company:</label>
+    <input type="text" id="username" name="username" required><br>
+
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 

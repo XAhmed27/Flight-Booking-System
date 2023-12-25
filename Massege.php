@@ -15,15 +15,19 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/flyy.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
-            padding: 20px;
+        /background-color: #fff;/
+        padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 400px;
             margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.5);
+
         }
 
         input {
@@ -57,76 +61,76 @@
 
 <body>
 
-    <?php
-    require_once 'vendor/autoload.php';
-    require_once 'errorhandling.php';
-    require_once 'connection.php';
+<?php
+require_once 'vendor/autoload.php';
+require_once 'errorhandling.php';
+require_once 'connection.php';
 
-    use \Firebase\JWT\JWT;
+use \Firebase\JWT\JWT;
 
-    global $conn;
-    $passengerID = isset($_GET['passengerID']) ? $_GET['passengerID'] : null;
+global $conn;
+$passengerID = isset($_GET['passengerID']) ? $_GET['passengerID'] : null;
 
-    if (!$passengerID) {
-        // at2kd el awl 
-        header("Location: MassegeAuth.php");
-        exit();
-    }
+if (!$passengerID) {
+    // at2kd el awl
+    header("Location: MassegeAuth.php");
+    exit();
+}
 
-    // Handle form submission
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
 
-        try {
-            
-            $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
-            $stmt = $conn->prepare($getCompanyIdQuery);
-            $stmt->bind_param("s", $username);
-            $stmt->execute();
-            $result = $stmt->get_result();
+    try {
 
-            if ($result->num_rows === 1) {
-                // User found, fetch companyId
-                $row = $result->fetch_assoc();
-                $companyId = $row['companyID'];
+        $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
+        $stmt = $conn->prepare($getCompanyIdQuery);
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-               
-                // Store the companyId, passengerID, and message in the message table
-                $messageText = $_POST['message'];
-                $insertMessageQuery = "INSERT INTO message (companyID, passengerID, text) VALUES (?, ?, ?)";
-                $insertStmt = $conn->prepare($insertMessageQuery);
-                $insertStmt->bind_param('iis', $companyId, $passengerID, $messageText);
+        if ($result->num_rows === 1) {
+            // User found, fetch companyId
+            $row = $result->fetch_assoc();
+            $companyId = $row['companyID'];
 
-                if ($insertStmt->execute()) {
-                    echo '<p class="success">Message stored successfully!</p>';
-                } else {
-                    echo '<p class="error">Error storing message.</p>';
-                }
+
+            // Store the companyId, passengerID, and message in the message table
+            $messageText = $_POST['message'];
+            $insertMessageQuery = "INSERT INTO message (companyID, passengerID, text) VALUES (?, ?, ?)";
+            $insertStmt = $conn->prepare($insertMessageQuery);
+            $insertStmt->bind_param('iis', $companyId, $passengerID, $messageText);
+
+            if ($insertStmt->execute()) {
+                echo '<p class="success">Message stored successfully!</p>';
             } else {
-                echo '<p class="error">User not found.</p>';
+                echo '<p class="error">Error storing message.</p>';
             }
-
-            $stmt->close();
-            $insertStmt->close();
-        } catch (PDOException $e) {
-            echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
+        } else {
+            echo '<p class="error">User not found.</p>';
         }
+
+        $stmt->close();
+        $insertStmt->close();
+    } catch (PDOException $e) {
+        echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
     }
-    ?>
+}
+?>
 
-    <!--  form to enter username and message -->
-    <form action="" method="post">
-        <label for="username">Enter compayname:</label>
-        <input type="text" id="username" name="username" required><br>
+<!--  form to enter username and message -->
+<form action="" method="post">
+    <label for="username">Enter compayname:</label>
+    <input type="text" id="username" name="username" required><br>
 
-        <label for="message">Enter Message:</label>
-        <input type="text" id="message" name="message" required><br>
+    <label for="message">Enter Message:</label>
+    <input type="text" id="message" name="message" required><br>
 
-        <!-- a hidden field for passengerID -->
-        <input type="hidden" name="passengerID" value="<?php echo isset($_GET['passengerID']) ? $_GET['passengerID'] : ''; ?>">
+    <!-- a hidden field for passengerID -->
+    <input type="hidden" name="passengerID" value="<?php echo isset($_GET['passengerID']) ? $_GET['passengerID'] : ''; ?>">
 
-        <input type="submit" value="Submit">
-    </form>
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 

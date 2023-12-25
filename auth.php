@@ -12,7 +12,7 @@ $email = $password = $message = '';
 
 // Check if submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
+
     if (isset($_POST['email'], $_POST['password'])) {
         // Retrieve the submitted email and password
         $email = $_POST['email'];
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     session_destroy();
                     session_start();
 
-                    
+
                     $_SESSION['user'] = $userData;
 
                     if (isset($_POST['name_button'])) {
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     } elseif (isset($_POST['tel_button'])) {
                         header("Location: Tel.php");
                         exit();
-                        
+
                     }
                 } else {
                     $message = 'Invalid credentials';
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $conn->close();
         }
     } else {
-       
+
     }
 }
 ?>
@@ -87,10 +87,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/flyy.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -100,6 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         input {
+
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -107,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             padding: 10px;
             border: none;
@@ -119,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         p {

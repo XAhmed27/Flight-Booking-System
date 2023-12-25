@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passenger Authentication</title>
+    <title>Company Authentication</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -74,16 +74,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
-            padding: 20px;
+            background-color: transparent;
+            padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 1);
             width: 400px;
             margin-bottom: 20px;
             text-align: center;
+            opacity: 1;
+            font-size: 25px;
+
+
+
+        }
+
+        h1 {
+            display: block;
+            text-align: start;
+            margin-bottom: 20px;
+            opacity: 1;
+            font-size: 30px;
         }
 
         input,
@@ -95,13 +110,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         p {
@@ -109,7 +124,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-top: 10px;
         }
     </style>
+
 </head>
+
 
 <body>
 
