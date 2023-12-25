@@ -81,10 +81,11 @@ $userData = $stmt->get_result()->fetch_assoc();
             display: flex;
             justify-content: center;
             align-items: center;
+            background-image: url('assets/air3.jpg');
             height: 100vh;
         }
         .nav-button {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             padding: 10px;
             border: none;
@@ -95,15 +96,17 @@ $userData = $stmt->get_result()->fetch_assoc();
             width: 200px;
             text-align: center;
             font-size: 16px;
+            margin-right: 10px;
         }
 
         div {
-            background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 300px;
             margin-bottom: 20px;
+            margin-right: 5px;
         }
 
         p {
@@ -115,20 +118,20 @@ $userData = $stmt->get_result()->fetch_assoc();
         }
 
         input, select {
-            width: calc(100% - 20px);
+            width: calc(100% - 40px);
             padding: 10px;
             margin: 8px 0;
             box-sizing: border-box;
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         input[type="button"] {

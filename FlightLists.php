@@ -14,11 +14,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-
-        h3 {
-            text-align: center;
-            margin-bottom: 20px;
+            background-image: url('assets/flyy.jpg');
+            background-size: cover;
         }
 
         table {
@@ -35,8 +32,9 @@
             padding: 15px;
             text-align: left;
         }
+
         .button-link {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             padding: 10px;
             border: none;
@@ -46,9 +44,18 @@
             text-decoration: none; /* Remove underline from the link */
         }
 
+
+
+        .widget, h1 {
+            text-align: center;
+            display: block;
+            align-items: center;
+            margin-right: 10px;
+        }
+
         /* Hover effect for the button */
         .button-link:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
     </style>
 </head>
@@ -57,18 +64,21 @@
 <?php
 require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
-require_once 'connection.php';  
+require_once 'connection.php';
+
 use \Firebase\JWT\JWT;
+
 global $conn;
 
 //  flights data from the database
-function getFlightsData() {
+function getFlightsData()
+{
     global $conn;
 
     try {
         $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime
-                  FROM flight"; 
-    
+                  FROM flight";
+
         $stmt = $conn->prepare($query);
         $stmt->execute();
         $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime);
@@ -90,7 +100,7 @@ function getFlightsData() {
         return $flights;
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
-        return []; 
+        return [];
     }
 }
 
@@ -98,29 +108,38 @@ function getFlightsData() {
 $flights = getFlightsData();
 ?>
 
-<h3>Flights</h3>
-<table border="1">
-    <tr>
-        <th>Flight Name</th>
-        <th>From</th>
-        <th>To</th>
-        <th>Fees</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-    </tr>
-    <?php foreach ($flights ?? [] as $flightName => $flight) : ?>
+
+<div class="widget">
+    <h1>Flights</h1>
+</div>
+
+
+<div class="widget2">
+    <table border="1">
         <tr>
-            <td><?php echo $flight['name']; ?></td>
-            <td><?php echo $flight['flight_from']; ?></td>
-            <td><?php echo $flight['flight_to']; ?></td>
-            <td><?php echo $flight['fees']; ?></td>
-            <td><?php echo $flight['startTime']; ?></td>
-            <td><?php echo $flight['endTime']; ?></td>
+            <th>Flight Name</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Fees</th>
+            <th>Start Time</th>
+            <th>End Time</th>
         </tr>
-    <?php endforeach; ?>
-</table>
+        <?php foreach ($flights ?? [] as $flightName => $flight) : ?>
+            <tr>
+                <td><?php echo $flight['name']; ?></td>
+                <td><?php echo $flight['flight_from']; ?></td>
+                <td><?php echo $flight['flight_to']; ?></td>
+                <td><?php echo $flight['fees']; ?></td>
+                <td><?php echo $flight['startTime']; ?></td>
+                <td><?php echo $flight['endTime']; ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
 
 <!--link to go back -->
+<p></p>
+
 <a href="AddFlight.php" class="button-link">Add a New Flight</a>
 
 </body>

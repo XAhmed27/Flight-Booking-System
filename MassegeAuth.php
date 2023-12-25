@@ -18,12 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     try {
-        
+
         $getPassengerQuery = "SELECT u.name, u.email, u.tel, u.accountBalance, u.password, p.*
             FROM users u
             JOIN passenger p ON u.userID = p.userID
             WHERE u.email = ?";
-    
+
         $stmt = $conn->prepare($getPassengerQuery);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -73,10 +73,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.5);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -94,13 +96,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         p {
@@ -112,20 +114,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
 
-    <h2>Welcome to Company Login!</h2>
+<h2>Welcome to Company Login!</h2>
 
-    <!-- Display error message if any -->
-    <p><?php echo $message; ?></p>
+<!-- Display error message if any -->
+<p><?php echo $message; ?></p>
 
-    <form action="" method="post">
-        <label for="email">Enter Email:</label>
-        <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+<form action="" method="post">
+    <label for="email">Enter Email:</label>
+    <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
 
-        <label for="password">Enter Password:</label>
-        <input type="password" id="password" name="password" required>
+    <label for="password">Enter Password:</label>
+    <input type="password" id="password" name="password" required>
 
-        <input type="submit" value="Submit">
-    </form>
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 

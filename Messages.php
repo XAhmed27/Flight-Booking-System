@@ -15,10 +15,12 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         form {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.5);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -34,13 +36,13 @@
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color:  #146C94;
         }
 
         .error {
@@ -49,7 +51,7 @@
         }
 
         .success {
-            color: green;
+            color:  #146C94;
             margin-top: 10px;
         }
 
@@ -69,76 +71,76 @@
 
 <body>
 
-    <?php
-    require_once 'vendor/autoload.php';
-    require_once 'errorhandling.php';
-    require_once 'connection.php';
+<?php
+require_once 'vendor/autoload.php';
+require_once 'errorhandling.php';
+require_once 'connection.php';
 
-    use \Firebase\JWT\JWT;
+use \Firebase\JWT\JWT;
 
-    global $conn;
+global $conn;
 
-    // Handle submittion
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = $_POST['username'];
+// Handle submittion
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
 
-        try {
-           
-            $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
-            $stmtCompany = $conn->prepare($getCompanyIdQuery);
-            $stmtCompany->bind_param("s", $username);
-            $stmtCompany->execute();
-            $resultCompany = $stmtCompany->get_result();
+    try {
 
-            if ($resultCompany->num_rows === 1) {
-                // if found, return companyID
-                $rowCompany = $resultCompany->fetch_assoc();
-                $companyID = $rowCompany['companyID'];
+        $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
+        $stmtCompany = $conn->prepare($getCompanyIdQuery);
+        $stmtCompany->bind_param("s", $username);
+        $stmtCompany->execute();
+        $resultCompany = $stmtCompany->get_result();
 
-                // Retrieve messages for the company from the message table 
-                $getMessagesQuery = "SELECT m.text, u.name AS senderName
+        if ($resultCompany->num_rows === 1) {
+            // if found, return companyID
+            $rowCompany = $resultCompany->fetch_assoc();
+            $companyID = $rowCompany['companyID'];
+
+            // Retrieve messages for the company from the message table
+            $getMessagesQuery = "SELECT m.text, u.name AS senderName
                                     FROM message m
                                     INNER JOIN passenger p ON m.passengerID = p.passengerID
                                     INNER JOIN users u ON p.userID = u.userID
                                     WHERE m.companyID = ?";
-                $getMessagesStmt = $conn->prepare($getMessagesQuery);
-                $getMessagesStmt->bind_param("i", $companyID);
-                $getMessagesStmt->execute();
-                $messagesResult = $getMessagesStmt->get_result();
+            $getMessagesStmt = $conn->prepare($getMessagesQuery);
+            $getMessagesStmt->bind_param("i", $companyID);
+            $getMessagesStmt->execute();
+            $messagesResult = $getMessagesStmt->get_result();
 
-                if ($messagesResult->num_rows > 0) {
-                    // Display messages
-                    echo '<div class="messages">';
-                    while ($message = $messagesResult->fetch_assoc()) {
-                        echo '<div class="message-item">';
-                        echo '<strong>Sender Name:</strong> ' . $message['senderName'] . '<br>';
-                        echo '<strong>Message:</strong> ' . $message['text'];
-                        echo '</div>';
-                    }
+            if ($messagesResult->num_rows > 0) {
+                // Display messages
+                echo '<div class="messages">';
+                while ($message = $messagesResult->fetch_assoc()) {
+                    echo '<div class="message-item">';
+                    echo '<strong>Sender Name:</strong> ' . $message['senderName'] . '<br>';
+                    echo '<strong>Message:</strong> ' . $message['text'];
                     echo '</div>';
-                } else {
-                    echo '<p class="success">No messages for this company.</p>';
                 }
-
-                $getMessagesStmt->close();
+                echo '</div>';
             } else {
-                echo '<p class="error">Company not found.</p>';
+                echo '<p class="success">No messages for this company.</p>';
             }
 
-            $stmtCompany->close();
-        } catch (PDOException $e) {
-            echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
+            $getMessagesStmt->close();
+        } else {
+            echo '<p class="error">Company not found.</p>';
         }
+
+        $stmtCompany->close();
+    } catch (PDOException $e) {
+        echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
     }
-    ?>
+}
+?>
 
-    <!-- Display form to enter username -->
-    <form action="" method="post">
-        <label for="username">Enter Username:</label>
-        <input type="text" id="username" name="username" required><br>
+<!-- Display form to enter username -->
+<form action="" method="post">
+    <label for="username">Enter Username:</label>
+    <input type="text" id="username" name="username" required><br>
 
-        <input type="submit" value="Submit">
-    </form>
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 

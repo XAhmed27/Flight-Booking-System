@@ -18,7 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $userPassword = $_POST['password'];
 
     try {
-        $getUserQuery = "SELECT u.*, p.*
+        // Check if a user with the provided email exists in the users table
+        $getUserQuery = "SELECT u., p.
             FROM users u
             LEFT JOIN passenger p ON u.userID = p.userID
             WHERE u.email = ?";
@@ -30,14 +31,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($userResult->num_rows === 0) {
             $message = 'User not found';
         } else {
-            // Fetch user
+            // Fetch the user data
             $userData = $userResult->fetch_assoc();
 
+            // Verify the password
             if (!empty($userData['password']) && password_verify($userPassword, $userData['password'])) {
+                // Log both entered password and stored password
                 error_log('Entered Password: ' . $userPassword);
                 error_log('Stored Password: ' . $userData['password']);
 
-                //eb3t 3la url
+                // Password is correct, proceed with displaying user information
                 header("Location: MyFlight.php?passenger_id=" . urlencode($userData['passengerID']));
                 exit();
             } else {
@@ -48,9 +51,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-t
+        // Close the prepared statement
         $stmt->close();
 
+        // Close the database connection
         $conn->close();
     }
 }
@@ -112,19 +116,21 @@ t
 
 <body>
 
-    <h2>Welcome to User Login!</h2>
+<h2>Welcome to User Login!</h2>
 
-    <p><?php echo $message; ?></p
-   
-    <form action="" method="post">
-        <label for="email">Enter Email:</label>
-        <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
+<!-- Display error message if any -->
+<p><?php echo $message; ?></p>
 
-        <label for="password">Enter Password:</label>
-        <input type="password" id="password" name="password" required>
+<!-- Add a form to enter email and password -->
+<form action="" method="post">
+    <label for="email">Enter Email:</label>
+    <input type="text" id="email" name="email" value="<?php echo htmlspecialchars($userEmail); ?>" required>
 
-        <input type="submit" value="Submit">
-    </form>
+    <label for="password">Enter Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <input type="submit" value="Submit">
+</form>
 
 </body>
 

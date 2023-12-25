@@ -11,11 +11,10 @@ $userData = $_SESSION['user'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Name</title>
+    <title>User Telephone</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,6 +25,8 @@ $userData = $_SESSION['user'];
             flex-direction: column;
             align-items: center;
             height: 100vh;
+            background-image: url('assets/flyy.jpg');
+            background-size: cover;
         }
 
         h2 {
@@ -35,7 +36,7 @@ $userData = $_SESSION['user'];
 
         /* Style for the navigation buttons */
         .nav-button {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             padding: 10px;
             border: none;
@@ -50,7 +51,7 @@ $userData = $_SESSION['user'];
 
         /* Hover effect for the navigation buttons */
         .nav-button:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
     </style>
 </head>
