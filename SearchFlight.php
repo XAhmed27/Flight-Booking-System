@@ -166,8 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </table>
 
 
-<a href="AddFlight.php" class="button-link">Add a New Flight</a>
+<a href="PassengerFlight.php" class="button-link">Booking New Flight</a>
 <a href="FlightLists.php" class="button-link">Flight Lists</a>
+<a href="PassengerHome.php" class="button-link">Home Page</a>
 
 </body>
 </html>

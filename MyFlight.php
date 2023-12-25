@@ -66,15 +66,16 @@ if (!empty($passengerID)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flights</title>
     <style>
-        body {
+    body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
         }
 
         div {

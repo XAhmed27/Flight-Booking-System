@@ -3,7 +3,7 @@
 $host = "localhost";
 $username = "root";
 $password = "";
-$database = "hossam";
+$database = "webprojectdb";
 
 // $host = "b9mym6lmp5wv3nzpjfmb-mysql.services.clever-cloud.com";
 // $username = "uk7hkgqjvow9yhzn";
