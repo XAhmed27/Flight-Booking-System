@@ -20,14 +20,12 @@
         }
 
         form {
-        /background-color: #fff;/
-        padding: 20px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 400px;
             margin-bottom: 20px;
             background: rgba(255, 255, 255, 0.5);
-
         }
 
         input {
@@ -66,52 +64,50 @@ require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
 
-use \Firebase\JWT\JWT;
-
 global $conn;
-$passengerID = isset($_GET['passengerID']) ? $_GET['passengerID'] : null;
-
-if (!$passengerID) {
-    // at2kd el awl
-    header("Location: MassegeAuth.php");
-    exit();
-}
+$passengerID = $_COOKIE['id'];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
 
     try {
-
         $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
         $stmt = $conn->prepare($getCompanyIdQuery);
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
+        
+        // Fetch all rows
+        $resultData = $result->fetch_all(MYSQLI_ASSOC);
 
-        if ($result->num_rows === 1) {
-            // User found, fetch companyId
-            $row = $result->fetch_assoc();
+        if (count($resultData) === 1) {
+            $row = $resultData[0];
             $companyId = $row['companyID'];
-
-
-            // Store the companyId, passengerID, and message in the message table
             $messageText = $_POST['message'];
             $insertMessageQuery = "INSERT INTO message (companyID, passengerID, text) VALUES (?, ?, ?)";
             $insertStmt = $conn->prepare($insertMessageQuery);
-            $insertStmt->bind_param('iis', $companyId, $passengerID, $messageText);
 
-            if ($insertStmt->execute()) {
-                echo '<p class="success">Message stored successfully!</p>';
+            // Check if the preparation of the statement is successful
+            if ($insertStmt) {
+                $insertStmt->bind_param('iis', $companyId, $passengerID, $messageText);
+
+                if ($insertStmt->execute()) {
+                    echo '<p class="success">Message stored successfully!</p>';
+                } else {
+                    echo '<p class="error">Error storing message.</p>';
+                }
+
+                // Close the statement
+                $insertStmt->close();
             } else {
-                echo '<p class="error">Error storing message.</p>';
+                echo '<p class="error">Error preparing statement.</p>';
             }
         } else {
             echo '<p class="error">User not found.</p>';
         }
 
         $stmt->close();
-        $insertStmt->close();
     } catch (PDOException $e) {
         echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
     }
