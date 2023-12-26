@@ -79,7 +79,6 @@ function getFlightsData()
 {
     global $conn;
     $companyId = $_COOKIE['id'];
-    echo "<p>$companyId<p>";
 
     try {
         $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime

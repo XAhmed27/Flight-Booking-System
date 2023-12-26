@@ -3,9 +3,12 @@ require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
 
-use \Firebase\JWT\JWT;
 
 global $conn;
+
+
+
+$companyId = $_COOKIE['id'];
 
 // Check if required parameters are present in the URL
 if (!isset($_GET['name']) || !isset($_GET['bio']) || !isset($_GET['address']) || !isset($_GET['username']) || !isset($_GET['location']) || !isset($_GET['tel']) || !isset($_GET['accountBalance'])) {
