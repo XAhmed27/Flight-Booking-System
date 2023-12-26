@@ -62,10 +62,8 @@ try {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Center content vertically */
             height: 100vh;
             background-image: url('assets/air3.jpg');
-            /* Replace with your background image path */
             background-size: cover;
         }
 
@@ -74,7 +72,7 @@ try {
             padding: 10px;
             box-sizing: border-box;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             position: fixed;
             top: 0;
             width: 100%;
@@ -82,13 +80,10 @@ try {
         }
 
         h2 {
-
             text-align: center;
             margin-top: 60px;
-            /* Adjust margin as needed */
             margin-bottom: 20px;
             color: slategrey;
-            /* Text color */
         }
 
         .nav-buttons {
@@ -124,6 +119,29 @@ try {
             background-color: #146C94;
         }
 
+        .profile-picture {
+            width: 40px; /* Adjust the size as needed */
+            height: 40px; /* Adjust the size as needed */
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .temp {
+            display: flex;
+            align-items: center;
+        }
+
+        .temp img {
+            margin-right: 5px;
+        }
+
+        .temp .status {
+            width: 10px;
+            height: 10px;
+            background-color: green;
+            border-radius: 50%;
+        }
+
         .auth-form {
             display: none;
         }
@@ -134,6 +152,10 @@ try {
 
     <!-- Navigation bar -->
     <div class="navbar">
+        <div class="temp">
+            <img src="../../assets/<?php echo $photo; ?>" alt="avatar" class="profile-picture">
+            <span class="status"></span>
+        </div>
         <a href="auth.php" class="nav-button" name="name_button"><?php echo $passengerName; ?></a>
         <a href="auth.php" class="nav-button" name="email_button">
             <span class="email-hover"><?php echo $passengerEmail; ?></span>
@@ -142,7 +164,7 @@ try {
         <a href="MyProfile.php" class="nav-button">Profile</a>
         <a href="SearchFlight.php" class="nav-button">SearchFlight</a>
         <a href="MyFlight.php" class="nav-button">Current Flight</a>
-        <a href="Massege.php" class="nav-button">send Message</a>
+        <a href="Massege.php" class="nav-button">Send Message</a>
         <a href="CancelFlight.php" class="nav-button">Cancel Flight</a>
     </div>
 
