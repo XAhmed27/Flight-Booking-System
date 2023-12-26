@@ -1,14 +1,11 @@
 <?php
 
-$host = "bzj5oyxzfkwxl2feoiqs-mysql.services.clever-cloud.com";
-$username = "ulq7cveqek2mdfvr";
-$password = "P9J73zhXFvWX2O57Wy1s";
-$database = "bzj5oyxzfkwxl2feoiqs";
 
-// $host = "b9mym6lmp5wv3nzpjfmb-mysql.services.clever-cloud.com";
-// $username = "uk7hkgqjvow9yhzn";
-// $password = "JOv8VQGhIMeLDK6zdolX";
-// $database = "b9mym6lmp5wv3nzpjfmb";
+
+$host = "buzwklw9ofzdxgzdmuyu-mysql.services.clever-cloud.com";
+$username = "ultpruh6h5ibf7p3";
+$password = "LZZ0R8tKWqmTMN9jZ5XH";
+$database = "buzwklw9ofzdxgzdmuyu";
 
 $conn = new mysqli($host, $username, $password, $database);
 
