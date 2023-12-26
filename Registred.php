@@ -59,32 +59,22 @@
 </head>
 
 <body>
-<?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+    <?php
+    require_once 'vendor/autoload.php';
+    require_once 'errorhandling.php';
+    require_once 'connection.php';
 
-use \Firebase\JWT\JWT;
 
-global $conn;
+    global $conn;
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
+    // Handle form submission
+    function getMessages()
+    {
+        global $conn;
 
-    try {
-        // Check if a  username exists in the company table
-        $getCompanyIdQuery = "SELECT companyID FROM company WHERE username = ?";
-        $stmtCompany = $conn->prepare($getCompanyIdQuery);
-        $stmtCompany->bind_param("s", $username);
-        $stmtCompany->execute();
-        $resultCompany = $stmtCompany->get_result();
-
-        if ($resultCompany->num_rows === 1) {
-
-            $rowCompany = $resultCompany->fetch_assoc();
-            $companyID = $rowCompany['companyID'];
-
+        $companyID = $_COOKIE['id'];
+        //1 //1
+        try {
             // Retrieve pending passengers for the specified company
             $getPendingPassengersQuery = "SELECT u.name AS passengerName
                     FROM users u
@@ -94,43 +84,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $getPendingPassengersStmt = $conn->prepare($getPendingPassengersQuery);
             $getPendingPassengersStmt->execute();
-            $pendingPassengersResult = $getPendingPassengersStmt->get_result();
+            $getPendingPassengersStmt->bind_result($passengerName);
 
-            if ($pendingPassengersResult->num_rows > 0) {
-                // Display pending passengers
-                echo '<div class="success">';
-                echo '<h3>Pending Passengers for Company Name ' . $username . '</h3>';
-                while ($pendingPassenger = $pendingPassengersResult->fetch_assoc()) {
-                    echo '<div>';
-                    echo '<strong>Passenger Name:</strong> ' . $pendingPassenger['passengerName'] . '<br>';
-                    echo '</div><br>';
-                }
-                echo '</div>';
-            } else {
-                echo '<p class="success">No Registred passengers found for this company.</p>';
+            $registered = [];
+            while ($getPendingPassengersStmt->fetch()) {
+                $registered[] = [
+                    'passengerName' => $passengerName,
+                ];
             }
-
-            $getPendingPassengersStmt->close();
-        } else {
-            echo '<p class="error">Company not found.</p>';
+            return $registered;
+        } catch (PDOException $e) {
+            echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
         }
-
-        $stmtCompany->close();
-    } catch (PDOException $e) {
-        echo '<p class="error">Error: ' . $e->getMessage() . '</p>';
     }
-}
-?>
-
-
-<form action="" method="post">
-    <label for="username">Enter Company:</label>
-    <input type="text" id="username" name="username" required><br>
-
-    <input type="submit" value="Submit">
-</form>
-
-</body>
-
-
-</html>
+    $registered = getMessages();
+    ?>
+    
+    
+    <div class="widget">
+        <h1>Registered</h1>
+    </div>
+    
+    <div class="widget2">
+        <table border="1">
+            <tr>
+                <th>Passenger Name</th>
+            </tr>
+            <?php foreach ($Registered ?? [] as $passengerName => $Registered) : ?>
+                <tr>
+                    <td><?php echo $messages ['passengerName']; ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+    <p></p>
+    
+    <a href="/features/Home-Company/CompanyHome.php" class="button-link">Back</a>
+    
+    </body>
+    </html>
