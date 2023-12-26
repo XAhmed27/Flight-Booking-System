@@ -17,7 +17,34 @@ $getPassengerInfoStmt->execute();
 $getPassengerInfoStmt->bind_result($passengerName, $passengerEmail, $passengerTel);
 $getPassengerInfoStmt->fetch();
 $getPassengerInfoStmt->close();
-$conn->close();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+try {
+    $passengerID = $_COOKIE['id'];
+
+    // Prepare the statement
+    $getCompanyLogo = "SELECT photo FROM passenger WHERE passengerID=?";
+    $stmtCompany = $conn->prepare($getCompanyLogo);
+
+    if (!$stmtCompany) {
+        throw new Exception("Error in preparing the statement: " . $conn->error);
+    }
+
+    // Bind parameters
+    $stmtCompany->bind_param("i", $passengerID);
+
+    if (!$stmtCompany) {
+        throw new Exception("Error in binding parameters: " . $conn->error);
+    }
+
+    $stmtCompany->execute();
+    $stmtCompany->bind_result($photo);
+    $stmtCompany->fetch();
+    $stmtCompany->close();
+} catch (Exception $e) {
+    echo "Caught exception: " . $e->getMessage();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,14 +114,15 @@ $conn->close();
         .nav-button:hover {
             background-color: #146C94;
         }
+
         .email-hover {
-           display: inline-block;
-           margin-right: 5px;
+            display: inline-block;
+            margin-right: 5px;
         }
-    
+
         .email-hover:hover {
-           background-color: #146C94;
-         }
+            background-color: #146C94;
+        }
 
         .auth-form {
             display: none;
@@ -105,18 +133,18 @@ $conn->close();
 <body>
 
     <!-- Navigation bar -->
-     <div class="navbar">
-     <a href="auth.php" class="nav-button" name="name_button"><?php echo $passengerName; ?></a>
-     <a href="auth.php" class="nav-button" name="email_button">
-        <span class="email-hover"><?php echo $passengerEmail; ?></span>
-     </a>
-     <a href="auth.php" class="nav-button" name="tel_button" style="padding-right: 20px;"><?php echo $passengerTel; ?></a>
-     <a href="MyProfile.php" class="nav-button">Profile</a>
-     <a href="SearchFlight.php" class="nav-button">SearchFlight</a>
-     <a href="MyFlight.php" class="nav-button">Current Flight</a>
-     <a href="Massege.php" class="nav-button">send Message</a>
-     <a href="CancelFlight.php" class="nav-button">Cancel Flight</a>
-     </div>
+    <div class="navbar">
+        <a href="auth.php" class="nav-button" name="name_button"><?php echo $passengerName; ?></a>
+        <a href="auth.php" class="nav-button" name="email_button">
+            <span class="email-hover"><?php echo $passengerEmail; ?></span>
+        </a>
+        <a href="auth.php" class="nav-button" name="tel_button" style="padding-right: 20px;"><?php echo $passengerTel; ?></a>
+        <a href="MyProfile.php" class="nav-button">Profile</a>
+        <a href="SearchFlight.php" class="nav-button">SearchFlight</a>
+        <a href="MyFlight.php" class="nav-button">Current Flight</a>
+        <a href="Massege.php" class="nav-button">send Message</a>
+        <a href="CancelFlight.php" class="nav-button">Cancel Flight</a>
+    </div>
 
     <h2>Passenger Home</h2>
 

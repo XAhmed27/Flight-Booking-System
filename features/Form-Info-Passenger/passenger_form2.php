@@ -9,14 +9,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         global $conn; // Assuming $conn is defined somewhere in your code
 
-        // Retrieve data from the form
-        $passportImg = $_POST['passportImg'];
-        $photo = $_POST['photo'];
-
-        // Insert passenger data
+        $PassportImg = isset($_FILES['PassportImg']) ? $_FILES['PassportImg']["name"] : "";
+        $photo = isset($_FILES['photo']) ? $_FILES['photo']["name"] : "";
+        
+        // Handling logoImg file upload
+        if (isset($_FILES['photo']['tmp_name']) && empty($_FILES['photo']['tmp_name'])) {
+            echo "<script> alert('Image Does Not Exist for logoImg');</script>";
+        } else {
+            $fileName = $_FILES["photo"]["name"];
+            $fileSize = $_FILES["photo"]["size"];
+            $tmpName = $_FILES["photo"]["tmp_name"];
+        
+            $validImagesExtension = ['jpg', 'jpeg', 'png'];
+            $imageExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        
+            if (!in_array($imageExtension, $validImagesExtension)) {
+                echo "<script> alert('Invalid Image Extension for photo');</script>";
+            } else if ($fileSize > 1000000) {
+                echo "<script> alert('Image Size is Too Large for photo');</script>";
+            }else{
+                $newImageName =uniqid();
+                $newImageName .='.' . $imageExtension;
+                move_uploaded_file($tmpName,'../../assets/'. $newImageName);
+            }
+        }
+        
+        // Handling passImge file upload
+        if (isset($_FILES['PassportImg']['tmp_name']) && empty($_FILES['PassportImg']['tmp_name'])) {
+            echo "<script> alert('Image Does Not Exist for PassportImg');</script>";
+        } else {
+            $passFileName = $_FILES["PassportImg"]["name"];
+            $passFileSize = $_FILES["PassportImg"]["size"];
+            $passTmpName = $_FILES["PassportImg"]["tmp_name"];
+        
+            $validPassExtensions = ['jpg', 'jpeg', 'png'];
+            $passExtension = strtolower(pathinfo($passFileName, PATHINFO_EXTENSION));
+        
+            if (!in_array($passExtension, $validPassExtensions)) {
+                echo "<script> alert('Invalid Image Extension for PassportImg');</script>";
+            } else if ($passFileSize > 1000000) {
+                echo "<script> alert('Image Size is Too Large for PassportImg');</script>";
+            }else{
+                $newPassName =uniqid();
+                $newPassName .='.' . $passExtension;
+                move_uploaded_file($tmpName,'../../assets/'. $newPassName);
+            }
+        }
         $insertPassengerQuery = "INSERT INTO passenger (userID, PassportImg, photo) VALUES (?, ?, ?)";
         $stmtPassenger = $conn->prepare($insertPassengerQuery);
-        $stmtPassenger->bind_param("iss", $userId, $passportImg, $photo);
+        $stmtPassenger->bind_param("iss", $userId, $newPassName, $newImageName);
         $stmtPassenger->execute();
 
         // header("Location: ../../../PassengerHome.php");
@@ -84,9 +125,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-<form id="passengerForm" action="" method="post">
-    Passport Img: <input type="text" name="passportImg" required><br>
-    Photo: <input type="text" name="photo" required><br>
+<form id="passengerForm" action="" method="post" enctype="multipart/form-data">
+        <label for='PassportImg'>Passport Img:</label>
+        <input style="border-color: transparent; "type="file" name="PassportImg" accept=".jpg, .jpeg, .png" value=""><br><br>
+        <label for='photo'>Passport Img:</label>
+        <input style="border-color: transparent; "type="file" name="photo" accept=".jpg, .jpeg, .png" value=""><br><br>
     <input type="submit" value="Submit Passenger Info">
 </form>
 
