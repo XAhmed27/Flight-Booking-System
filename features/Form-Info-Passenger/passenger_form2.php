@@ -19,7 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtPassenger->bind_param("iss", $userId, $passportImg, $photo);
         $stmtPassenger->execute();
 
-        header("Location: ../../../PassengerHome.php");
+        // header("Location: ../../../PassengerHome.php");
+         header("Location:../Login/login.ui.php");
 
 
         exit();

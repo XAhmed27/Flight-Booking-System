@@ -8,14 +8,15 @@ use \Firebase\JWT\JWT;
 global $conn;
 //var_dump($_GET);
 
-if (!isset($_GET['passenger_id'])) {
-    // Redirect to MyFlightAuth.php if passengerid or other parameters are missing
-    header("Location: MyFlightAuth.php");
-    exit();
-}
+// if (!isset($_GET['passenger_id'])) {
+//     // Redirect to MyFlightAuth.php if passengerid or other parameters are missing
+//     header("Location: MyFlightAuth.php");
+//     exit();
+// }
 
-// Initialize variables
-$passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
+
+// $passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
+$passengerID = $_COOKIE['id'];
 $flightsData = array();
 $message = '';
 
@@ -54,7 +55,7 @@ if (!empty($passengerID)) {
         $conn->close();
     }
 } else {
-    $message = 'Passenger ID is missing in the URL.';
+    $message = 'Passenger ID is missing.';
 }
 ?>
 
