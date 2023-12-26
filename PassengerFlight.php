@@ -11,6 +11,7 @@ if (!isset($_GET['passenger_id'])) {
     header("Location: passengerFlightAuth.php");
     exit();
 }
+
 // Initialize variables
 $passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
 $flightFrom = isset($_POST['flight_from']) ? $_POST['flight_from'] : '';
@@ -23,30 +24,64 @@ if (!empty($passengerID)) {
     try {
         // Check if the form is submitted
         if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($flightFrom) && !empty($flightTo)) {
-            // Search for the flight flight table
-            $searchFlightQuery = "SELECT flightID FROM flight WHERE flight_to = ? AND flight_from = ?";
+            // Search for the flight in the flight table
+            $searchFlightQuery = "SELECT flightID, fees FROM flight WHERE flight_to = ? AND flight_from = ?";
             $stmt = $conn->prepare($searchFlightQuery);
             $stmt->bind_param("ss", $flightTo, $flightFrom);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
-
                 $row = $result->fetch_assoc();
                 $flightID = $row['flightID'];
+                $fees = $row['fees'];
 
-                // Store the information in the passenger_flight table
-                $insertPassengerFlightQuery = "INSERT INTO passenger_flight (passengerID, flightID, passengerStatus) VALUES (?, ?, ?)";
-                $stmt = $conn->prepare($insertPassengerFlightQuery);
-                $stmt->bind_param("iss", $passengerID, $flightID, $passengerStatus);
+                // Get account balance
+                $getBalanceQuery = "SELECT u.accountBalance
+                                    FROM users u
+                                    INNER JOIN passenger p ON u.userID = p.userID
+                                    WHERE p.passengerID = ?";
+                $stmt = $conn->prepare($getBalanceQuery);
+                $stmt->bind_param("i", $passengerID);
                 $stmt->execute();
+                $result = $stmt->get_result();
 
-                $message = 'Flight registration successful!';
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    $accountBalance = $row['accountBalance'];
+
+                    // f2eer wlaaaaaa 
+                    if ($accountBalance >= $fees) {
+                        // ems7 awaaad
+                        $newBalance = $accountBalance - $fees;
+
+                        // Update balance
+                        $updateBalanceQuery = "UPDATE users u
+                                              INNER JOIN passenger p ON u.userID = p.userID
+                                              SET u.accountBalance = ?
+                                              WHERE p.passengerID = ?";
+                        $stmt = $conn->prepare($updateBalanceQuery);
+                        $stmt->bind_param("di", $newBalance, $passengerID);
+                        $stmt->execute();
+
+                        // store
+                        $insertPassengerFlightQuery = "INSERT INTO passenger_flight (passengerID, flightID, passengerStatus) VALUES (?, ?, ?)";
+                        $stmt = $conn->prepare($insertPassengerFlightQuery);
+                        $stmt->bind_param("iss", $passengerID, $flightID, $passengerStatus);
+                        $stmt->execute();
+
+                        $message = 'Flight registration successful! New balance: ' . $newBalance;
+                    } else {
+                        $message = 'Sorry, not enough money in the account.';
+                    }
+                } else {
+                    $message = 'Passenger not found.';
+                }
             } else {
                 $message = 'No matching flight found.';
             }
 
-            // Close the statement
+            // Close the statements
             $stmt->close();
         }
     } catch (Exception $e) {
@@ -71,7 +106,8 @@ if (!empty($passengerID)) {
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-image: url('assets/air3.jpg'); /* Replace with your background image path */
+            background-image: url('assets/air3.jpg');
+            /* Replace with your background image path */
             background-size: cover;
             margin: 0;
             padding: 0;
@@ -97,19 +133,24 @@ if (!empty($passengerID)) {
             padding: 10px;
             margin: 8px 0;
             box-sizing: border-box;
-            border: none; /* Remove default border */
-            border-radius: 5px; /* Add border-radius for rounded corners */
-            background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent white background */
+            border: none;
+            /* Remove default border */
+            border-radius: 5px;
+            /* Add border-radius for rounded corners */
+            background-color: rgba(255, 255, 255, 0.5);
+            /* Semi-transparent white background */
         }
 
         input[type="submit"] {
-            background-color: #146C94; /* Blue color */
+            background-color: #146C94;
+            /* Blue color */
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #12516E; /* Darker blue on hover */
+            background-color: #12516E;
+            /* Darker blue on hover */
         }
 
         p {
@@ -131,27 +172,27 @@ if (!empty($passengerID)) {
 
 <body>
 
-<h2>Flight Registration</h2>
+    <h2>Flight Registration</h2>
 
-<p><?php echo $message; ?></p>
+    <p><?php echo $message; ?></p>
 
-<form action="" method="post">
-    <input type="hidden" name="passenger_id" value="<?php echo htmlspecialchars($passengerID); ?>">
+    <form action="" method="post">
+        <input type="hidden" name="passenger_id" value="<?php echo htmlspecialchars($passengerID); ?>">
 
-    <label for="flight_from">Flight From:</label>
-    <input type="text" id="flight_from" name="flight_from" required>
+        <label for="flight_from">Flight From:</label>
+        <input type="text" id="flight_from" name="flight_from" required>
 
-    <label for="flight_to">Flight To:</label>
-    <input type="text" id="flight_to" name="flight_to" required>
+        <label for="flight_to">Flight To:</label>
+        <input type="text" id="flight_to" name="flight_to" required>
 
-    <label for="status">Status:</label>
-    <select id="status" name="status">
-        <option value="pending">Pending</option>
-        <option value="registered">Registered</option>
-    </select>
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="pending">Pending</option>
+            <option value="registered">Registered</option>
+        </select>
 
-    <input type="submit" value="Register for Flight">
-</form>
+        <input type="submit" value="Register for Flight">
+    </form>
 
 </body>
 

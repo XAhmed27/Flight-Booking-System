@@ -36,13 +36,13 @@
         }
 
         input[type="submit"] {
-            background-color: #4caf50;
+            background-color: #146C94;
             color: white;
             cursor: pointer;
         }
 
         input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #146C94;
         }
 
         .error {
@@ -51,7 +51,7 @@
         }
 
         .success {
-            color: green;
+            color: #146C94;
             margin-top: 10px;
         }
     </style>
