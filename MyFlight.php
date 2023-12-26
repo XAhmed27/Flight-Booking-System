@@ -6,25 +6,14 @@ require_once 'connection.php';
 use \Firebase\JWT\JWT;
 
 global $conn;
-//var_dump($_GET);
 
-// if (!isset($_GET['passenger_id'])) {
-//     // Redirect to MyFlightAuth.php if passengerid or other parameters are missing
-//     header("Location: MyFlightAuth.php");
-//     exit();
-// }
-
-
-// $passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
 $passengerID = $_COOKIE['id'];
 $flightsData = array();
 $message = '';
 
-// Check if the passenger ID is provided in the URL
 if (!empty($passengerID)) {
     try {
-        // Retrieve flights for the given passenger ID
-        $getFlightsQuery = "SELECT f.*
+        $getFlightsQuery = "SELECT f.*, pf.passengerStatus
             FROM flight f
             JOIN passenger_flight pf ON f.flightID = pf.flightID
             WHERE pf.passengerID = ?";
@@ -33,7 +22,6 @@ if (!empty($passengerID)) {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Fetch the flight data
         while ($row = $result->fetch_assoc()) {
             $flightID = $row['flightID'];
             $flightsData[$flightID]['flightID'] = $row['flightID'];
@@ -41,17 +29,14 @@ if (!empty($passengerID)) {
             $flightsData[$flightID]['flight_from'] = $row['flight_from'];
             $flightsData[$flightID]['flight_to'] = $row['flight_to'];
             $flightsData[$flightID]['startTime'] = $row['endTime'];
-            // Add more flight-related fields as needed
+            $flightsData[$flightID]['passengerStatus'] = $row['passengerStatus'];
         }
 
-        // Close the statement
         $stmt->close();
 
     } catch (Exception $e) {
-        // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-        // Close the database connection
         $conn->close();
     }
 } else {
@@ -114,10 +99,8 @@ if (!empty($passengerID)) {
 
 <h2>My Flights</h2>
 
-<!-- Display error or success message -->
 <p class="message"><?php echo $message; ?></p>
 
-<!-- Display flights information -->
 <?php if (!empty($flightsData)): ?>
     <div>
         <ul>
@@ -128,7 +111,7 @@ if (!empty($passengerID)) {
                     <strong>Flight From:</strong> <?php echo $flight['flight_from']; ?><br>
                     <strong>Flight To:</strong> <?php echo $flight['flight_to']; ?><br>
                     <strong>Start Time:</strong> <?php echo $flight['startTime']; ?><br>
-                    <!-- Add more flight-related fields as needed -->
+                    <strong>Status:</strong> <?php echo $flight['passengerStatus']; ?><br>
                 </li>
             <?php endforeach; ?>
         </ul>
