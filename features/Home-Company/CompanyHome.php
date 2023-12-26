@@ -23,7 +23,8 @@
         h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: grey; /* Change font color to grey */
+            color: grey;
+            /* Change font color to grey */
             opacity: 1;
             font-size: 30px;
         }
@@ -34,7 +35,8 @@
             padding: 10px;
             box-sizing: border-box;
             display: flex;
-            justify-content: center; /* Center the items horizontally */
+            justify-content: center;
+            /* Center the items horizontally */
             position: fixed;
             top: 0;
             z-index: 1000;
@@ -53,7 +55,8 @@
             cursor: pointer;
             text-decoration: none;
             font-size: 16px;
-            margin: 0 10px; /* Add margin between buttons */
+            margin: 0 10px;
+            /* Add margin between buttons */
         }
 
         /* Hover effect for the navigation buttons */
@@ -66,6 +69,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -84,6 +88,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -94,61 +99,156 @@
             from {
                 transform: translateY(1em);
             }
+
             to {
                 transform: translateY(0);
             }
+        }
+
+        .img-circle-small {
+            width: 53px;
+            height: 55px;
+            border-top-left-radius: 50% 50%;
+            border-top-right-radius: 50% 50%;
+            border-bottom-right-radius: 50% 50%;
+            border-bottom-left-radius: 50% 50%;
+            border: 2px solid #CCC;
+            margin-bottom: 2px;
+        }
+
+        .status {
+            width: 16px;
+            height: 16px;
+            border-top-left-radius: 50% 50%;
+            border-top-right-radius: 50% 50%;
+            border-bottom-right-radius: 50% 50%;
+            border-bottom-left-radius: 50% 50%;
+            border: 2px solid #CCC;
+            margin-bottom: 2px;
+            background-color: green;
+
+            position: absolute;
+
+        }
+
+        .temp {
+            position: fixed;
+            /* Use fixed position for the entire screen */
+            top: 15px;
+            /* Align to the top */
+            left: 15px;
+            /* Align to the left */
+            display: inline-block;
+        }
+
+        .topRight {
+            top: 0;
+            right: 0;
         }
     </style>
 </head>
 
 <body>
 
-<?php
-// Include the navigation bar using PHP
-echo <<<HTML
+    <?php
+    require_once '../../vendor/autoload.php';
+    require_once '../../errorhandling.php';
+    require_once '../../connection.php';
+
+
+    global $conn;
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+
+    try {
+        $companyID = $_COOKIE['id'];
+    
+        // Prepare the statement
+        $getCompanyLogo = "SELECT logoImg FROM company WHERE companyID=?";
+        $stmtCompany = $conn->prepare($getCompanyLogo);
+    
+        if (!$stmtCompany) {
+            throw new Exception("Error in preparing the statement: " . $conn->error);
+        }
+    
+        // Bind parameters
+        $stmtCompany->bind_param("i", $companyID);
+    
+        if (!$stmtCompany) {
+            throw new Exception("Error in binding parameters: " . $conn->error);
+        }
+    
+        // Execute the statement
+        $stmtCompany->execute();
+    
+        // Bind result
+        $stmtCompany->bind_result($logo);
+    
+        // Fetch the result
+        $stmtCompany->fetch();
+    
+        // Close the statement
+        $stmtCompany->close();
+    
+    } catch (Exception $e) {
+        // Handle the exception
+        echo "Caught exception: " . $e->getMessage();
+    }
+
+
+
+    echo <<<HTML
     <!-- Navigation bar -->
+    
     <div class="navbar">
         <a href="../../AddFlight.php" class="nav-button">Add Flight</a>
         <a href="../../FlightLists.php" class="nav-button">#Flights List</a>
         <a href="../../CompanyProfile.php" class="nav-button">Profile</a>
         <a href="../../CompanyMessages.php" class="nav-button">Messages</a>
         <a href="../../PassengersFlightStatus.php" class="nav-button">Flight Status</a>
-
+        
     </div>
+
+    
 HTML;
-?>
+    ?>
 
-<!-- Welcome message -->
-<h2 class="welcome-message">Welcome to Our Flight Booking System</h2>
+    <!-- Welcome message -->
+    <h2 class="welcome-message">Welcome to Our Flight Booking System</h2>
 
-<!-- The rest of your content goes here -->
+    <!-- The rest of your content goes here -->
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-    $(document).ready(function () {
-        // Split the sentence into letters
-        var letters = $(".welcome-message").text().split("");
-        // Clear the content of the h2 element
-        $(".welcome-message").empty();
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Split the sentence into letters
+            var letters = $(".welcome-message").text().split("");
+            // Clear the content of the h2 element
+            $(".welcome-message").empty();
 
-        // Add each letter in a span with a class for animation
-        for (var i = 0; i < letters.length; i++) {
-            if (letters[i] === ' ') {
-                $(".welcome-message").append("<span>&nbsp;</span>"); // Add a non-breaking space
-            } else {
-                $(".welcome-message").append("<span class='letter'>" + letters[i] + "</span>");
+            // Add each letter in a span with a class for animation
+            for (var i = 0; i < letters.length; i++) {
+                if (letters[i] === ' ') {
+                    $(".welcome-message").append("<span>&nbsp;</span>"); // Add a non-breaking space
+                } else {
+                    $(".welcome-message").append("<span class='letter'>" + letters[i] + "</span>");
+                }
             }
-        }
 
-        // Animate each letter
-        $(".letter").each(function (index) {
-            $(this).delay(100 * index).animate({ opacity: 1 }, 300);
+            // Animate each letter
+            $(".letter").each(function(index) {
+                $(this).delay(100 * index).animate({
+                    opacity: 1
+                }, 300);
+            });
+
         });
-
-    });
-</script>
-
+    </script>
+    <div class="temp">
+        <img src="../../assets/<?php echo $logo; ?>" alt="avatar" class="img-circle-small">
+        <span class="status topRight">&nbsp</span>
+    </div>
 </body>
 
 </html>

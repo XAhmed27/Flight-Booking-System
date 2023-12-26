@@ -15,41 +15,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $address = $_POST['address'];
         $location = $_POST['location'];
         $username = $_POST['username'];
-        $logoImg = $_POST['logoImg'];
+        $logoImg = isset($_FILES['logoImg']) ? $_FILES['logoImg']["name"] : "";
 
-        // Insert company data
+        if(isset($_FILES['logoImg']['tmp_name']) && empty($_FILES['logoImg']['tmp_name'])){
+            echo
+            "<script> alert('Image Dose Not Exist');</script>";
+        }else{
+            $fileName =$_FILES["logoImg"]["name"];
+            $fileSize =$_FILES["logoImg"]["size"];
+            $tmpName =$_FILES["logoImg"]["tmp_name"];
 
-        $insertCompanyQuery = "INSERT INTO company (userID, bio, username, address, location, logoImg) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmtCompany = $conn->prepare($insertCompanyQuery);
-        $stmtCompany->bind_param("isssss", $userId, $bio, $username, $address, $location, $logoImg);
-        $stmtCompany->execute();
+            $validImagesExtension=['jpg','jpeg','png'];
+            $imageExtension=explode('.',$fileName);
+            $imageExtension=strtolower(end($imageExtension));
 
-        //*Get CompanyID To set in cookies
-        $getCompanyIdQuery = "SELECT companyID FROM company WHERE userID=?";
-        $stmtCompany = $conn->prepare($getCompanyIdQuery);
-        if (!$stmtCompany) {
-            die("Error in preparing the statement: " . $conn->error);
+
+            if(!in_array($imageExtension,$validImagesExtension)){ 
+                echo
+                "<script> alert('Invalid Image Extensions');</script>";
+            }else if($fileSize > 1000000){
+                echo
+                "<script> alert('Image Size is To large');</script>";
+            }else{
+                $newImageName =uniqid();
+                $newImageName .='.' . $imageExtension;
+                move_uploaded_file($tmpName,'../../assets/'. $newImageName);
+                $insertCompanyQuery = "INSERT INTO company (userID, bio, username, address, location, logoImg) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmtCompany = $conn->prepare($insertCompanyQuery);
+                $stmtCompany->bind_param("isssss", $userId, $bio, $username, $address, $location, $newImageName);
+                $stmtCompany->execute();
+        
+                //*Get CompanyID To set in cookies
+                $getCompanyIdQuery = "SELECT companyID FROM company WHERE userID=?";
+                $stmtCompany = $conn->prepare($getCompanyIdQuery);
+                if (!$stmtCompany) {
+                    die("Error in preparing the statement: " . $conn->error);
+                }
+        
+                $stmtCompany->bind_param("i", $userId);
+        
+                if (!$stmtCompany->execute()) {
+                    die("Error in executing the statement: " . $stmtCompany->error);
+                }
+        
+                $stmtCompany->bind_result($companyId);
+                $stmtCompany->fetch();
+                $stmtCompany->close();
+                
+                //*Set cookies
+                setcookie('id', $companyId, time() + 3600 * 24, '/');
+                $id = $_COOKIE['id'];
+        
+                header("Location: ../Home-Company/CompanyHome.php");
+            } 
         }
 
-        $stmtCompany->bind_param("i", $userId);
-
-        if (!$stmtCompany->execute()) {
-            die("Error in executing the statement: " . $stmtCompany->error);
-        }
-
-        $stmtCompany->bind_result($companyId);
-        $stmtCompany->fetch();
-        $stmtCompany->close();
-        // Using echo
-        echo $companyId;
-
-        // Using print
-        print $companyId;
-        //*Set cookies
-        setcookie('id', $companyId, time() + 3600 * 24, '/');
-        $id = $_COOKIE['id'];
-
-        header("Location: ../Home-Company/CompanyHome.php");
         exit();
     } catch (Exception $exception) {
         // Call handleGlobalError in case of an exception
@@ -118,12 +138,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
 
-    <form id="companyForm" action="" method="post">
+    <form id="companyForm" action="" method="post" enctype="multipart/form-data">
         Bio: <input type="text" name="bio" required><br>
         Address: <input type="text" name="address" required><br>
         Location: <input type="text" name="location" required><br>
         Username: <input type="text" name="username" required><br>
-        Logo Img: <input type="text" name="logoImg" required><br>
+        <label for='logoImg'>logoImg:</label>
+        <input style="border-color: transparent; "type="file" name="logoImg" accept=".jpg, .jpeg, .png" value=""><br><br>
         <input type="submit" value="Submit Company Info">
     </form>
 
