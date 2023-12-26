@@ -52,7 +52,7 @@ if (!empty($passengerID)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flights</title>
     <style>
-    body {
+        body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -60,8 +60,8 @@ if (!empty($passengerID)) {
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 20px;
+            background-image: url('assets/air3.jpg');
+            background-size: cover;
         }
 
         div {
@@ -74,6 +74,9 @@ if (!empty($passengerID)) {
             text-align: left;
         }
 
+        h2{
+            margin-right: 10px;
+        }
         ul {
             list-style-type: none;
             padding: 0;
