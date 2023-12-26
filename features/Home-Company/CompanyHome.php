@@ -112,6 +112,8 @@ echo <<<HTML
         <a href="../../FlightLists.php" class="nav-button">#Flights List</a>
         <a href="../../CompanyProfile.php" class="nav-button">Profile</a>
         <a href="../../CompanyMessages.php" class="nav-button">Messages</a>
+        <a href="../../PassengersFlightStatus.php" class="nav-button">Flight Status</a>
+
     </div>
 HTML;
 ?>
