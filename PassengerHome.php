@@ -115,6 +115,7 @@ $conn->close();
      <a href="SearchFlight.php" class="nav-button">SearchFlight</a>
      <a href="MyFlight.php" class="nav-button">Current Flight</a>
      <a href="Massege.php" class="nav-button">send Message</a>
+     <a href="CancelFlight.php" class="nav-button">Cancel Flight</a>
      </div>
 
     <h2>Passenger Home</h2>
