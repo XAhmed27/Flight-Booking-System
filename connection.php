@@ -2,10 +2,10 @@
 
 
 
-$host = "bzj5oyxzfkwxl2feoiqs-mysql.services.clever-cloud.com";
-$username = "ulq7cveqek2mdfvr";
-$password = "P9J73zhXFvWX2O57Wy1s";
-$database = "bzj5oyxzfkwxl2feoiqs";
+$host = "bpf2vgyopgi1oqletjnm-mysql.services.clever-cloud.com";
+$username = "ubn8xnohq45tmupo";
+$password = "8pob8vVPkA5lRN6TVTS2";
+$database = "bpf2vgyopgi1oqletjnm";
 
 $conn = new mysqli($host, $username, $password, $database);
 
