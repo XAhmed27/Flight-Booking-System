@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,11 +25,14 @@
             margin-top: 20px;
         }
 
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid #ddd;
         }
 
-        th, td {
+        th,
+        td {
             padding: 15px;
             text-align: left;
         }
@@ -40,13 +44,16 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px; /* Add margin-top for spacing */
-            text-decoration: none; /* Remove underline from the link */
+            margin-top: 20px;
+            /* Add margin-top for spacing */
+            text-decoration: none;
+            /* Remove underline from the link */
         }
 
 
 
-        .widget, h1 {
+        .widget,
+        h1 {
             text-align: center;
             display: block;
             align-items: center;
@@ -59,83 +66,134 @@
         }
     </style>
 </head>
+
 <body>
 
-<?php
-require_once 'vendor/autoload.php';
-require_once 'errorhandling.php';
-require_once 'connection.php';
+    <?php
+    require_once 'vendor/autoload.php';
+    require_once 'errorhandling.php';
+    require_once 'connection.php';
 
-
-global $conn;
-
-
-
-$companyId = $_COOKIE['id'];
-
-
-function getFlightsData()
-{
     global $conn;
+
     $companyId = $_COOKIE['id'];
 
-    try {
-        $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime , status
-                  FROM flight WHERE companyID=?";
+    if (isset($_POST['flightID'], $_POST['fees'])) {
+        $flightID = $_POST['flightID'];
+        $fees = $_POST['fees'];
 
-        $stmt = $conn->prepare($query);
+        try {
+            // Begin transaction
+            $conn->begin_transaction();
 
+            // Update the flight status
+            $updateFlightQuery = "UPDATE flight SET status = 'off' WHERE flightID = ?";
+            $stmtUpdateFlight = $conn->prepare($updateFlightQuery);
+            $stmtUpdateFlight->bind_param("i", $flightID);
+            $stmtUpdateFlight->execute();
 
-        $stmt->bind_param("i", $companyId);
+            // Check for errors
+            if ($stmtUpdateFlight->errno) {
+                throw new Exception("Error updating flight status: " . $stmtUpdateFlight->error);
+            }
 
-        $stmt->execute();
-        $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime,$status);
+            // Update user account balances
+            $sql = "UPDATE users
+            SET accountBalance = accountBalance + ?
+            WHERE userID IN (SELECT p.userID
+                            FROM passenger p
+                            JOIN passenger_flight pf ON p.passengerID = pf.passengerID
+                            WHERE pf.flightID = ?)";
 
-        $flights = [];
-        while ($stmt->fetch()) {
-            $flights[] = [
-                'flightID' => $flightID,
-                'name' => $name,
-                'flight_from' => $flightFrom,
-                'flight_to' => $flightTo,
-                'fees' => $fees,
-                'startTime' => $startTime,
-                'endTime' => $endTime,
-                'status' => $status,
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("di", $fees, $flightID);
+            $stmt->execute();
 
-            ];
+            // Check for errors
+            if ($stmt->errno) {
+                throw new Exception("Error updating account balance: " . $stmt->error);
+            }
+
+            // Commit the transaction
+            $conn->commit();
+
+            // Close the statement and connection
+            $stmt->close();
+            $stmtUpdateFlight->close();
+            $conn->close();
+
+            // Redirect to the flights page
+            header("Location: FlightLists.php");
+            exit();
+        } catch (Exception $e) {
+            // Rollback the transaction in case of an error
+            $conn->rollback();
+            echo "Error: " . $e->getMessage();
         }
-
-        return $flights;
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
     }
-}
-
-$flights = getFlightsData();
-?>
 
 
-<div class="widget">
-    <h1>Flights</h1>
-</div>
+    function getFlightsData()
+    {
+        global $conn;
+        $companyId = $_COOKIE['id'];
+
+        try {
+            $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime , status
+              FROM flight WHERE companyID=?";
+
+            $stmt = $conn->prepare($query);
+
+            $stmt->bind_param("i", $companyId);
+
+            $stmt->execute();
+            $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime, $status);
+
+            $flights = [];
+            while ($stmt->fetch()) {
+                $flights[] = [
+                    'flightID' => $flightID,
+                    'name' => $name,
+                    'flight_from' => $flightFrom,
+                    'flight_to' => $flightTo,
+                    'fees' => $fees,
+                    'startTime' => $startTime,
+                    'endTime' => $endTime,
+                    'status' => $status,
+                ];
+            }
+
+            return $flights;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return [];
+        }
+    }
+
+    $flights = getFlightsData();
+    ?>
 
 
-<div class="widget2">
+    <div class="widget">
+        <h1>Flights</h1>
+    </div>
+
+
     <table border="1">
         <tr>
+            <th>Flight ID</th>
             <th>Flight Name</th>
             <th>From</th>
             <th>To</th>
             <th>Fees</th>
             <th>Start Time</th>
             <th>End Time</th>
-            <th>status</th>
-
+            <th>Status</th>
+            <th>Action</th> <!-- New column for Cancel action -->
         </tr>
         <?php foreach ($flights ?? [] as $flightName => $flight) : ?>
             <tr>
+                <td><?php echo $flight['flightID']; ?></td>
                 <td><?php echo $flight['name']; ?></td>
                 <td><?php echo $flight['flight_from']; ?></td>
                 <td><?php echo $flight['flight_to']; ?></td>
@@ -143,16 +201,23 @@ $flights = getFlightsData();
                 <td><?php echo $flight['startTime']; ?></td>
                 <td><?php echo $flight['endTime']; ?></td>
                 <td><?php echo $flight['status']; ?></td>
+                <td>
+                    <!-- Add a form with a button to cancel the flight -->
+                    <form method="post" action="FlightLists.php">
+                        <input type="hidden" name="flightID" value="<?php echo $flight['flightID']; ?>">
+                        <input type="hidden" name="fees" value="<?php echo $flight['fees']; ?>">
+                        <button type="submit">Cancel</button>
+                    </form>
+                </td>
             </tr>
         <?php endforeach; ?>
     </table>
-</div>
 
-<p></p>
+    <p></p>
 
-<a href="AddFlight.php" style="margin-right: 8px;" class="button-link">Add a New Flight</a>
 
-<a href="features/Home-Company/CompanyHome.php" class="button-link">Back</a>
+    <a href="features/Home-Company/CompanyHome.php" style="margin-left: 15px; " class="button-link">Back</a>
 
 </body>
+
 </html>

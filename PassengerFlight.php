@@ -3,7 +3,6 @@ require_once 'vendor/autoload.php';
 require_once 'errorhandling.php';
 require_once 'connection.php';
 
-use \Firebase\JWT\JWT;
 
 global $conn;
 $passengerID = $_COOKIE['id'];
@@ -18,51 +17,74 @@ if (!empty($passengerID)) {
         // Check if the form is submitted
         if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($flightFrom) && !empty($flightTo)) {
             // Search for the flight in the flight table
-            $searchFlightQuery = "SELECT flightID, fees FROM flight WHERE flight_to = ? AND flight_from = ?";
-            $stmt = $conn->prepare($searchFlightQuery);
-            $stmt->bind_param("ss", $flightTo, $flightFrom);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
+            $searchFlightQuery = "SELECT flightID, companyID, fees FROM flight WHERE flight_to = ? AND flight_from = ? AND status = 'on'";
+            $stmtFlight = $conn->prepare($searchFlightQuery);
+            $stmtFlight->bind_param("ss", $flightTo, $flightFrom);
+            $stmtFlight->execute();
+            $resultFlight = $stmtFlight->get_result();
+    
+            if ($resultFlight->num_rows > 0) {
+                $row = $resultFlight->fetch_assoc();
                 $flightID = $row['flightID'];
                 $fees = $row['fees'];
-
+                $companyID = $row['companyID'];
+    
                 // Get account balance
                 $getBalanceQuery = "SELECT u.accountBalance
                                     FROM users u
                                     INNER JOIN passenger p ON u.userID = p.userID
                                     WHERE p.passengerID = ?";
-                $stmt = $conn->prepare($getBalanceQuery);
-                $stmt->bind_param("i", $passengerID);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
+                $stmtBalance = $conn->prepare($getBalanceQuery);
+                $stmtBalance->bind_param("i", $passengerID);
+                $stmtBalance->execute();
+                $resultBalance = $stmtBalance->get_result();
+    
+                if ($resultBalance->num_rows > 0) {
+                    $row = $resultBalance->fetch_assoc();
                     $accountBalance = $row['accountBalance'];
-
-                    // f2eer wlaaaaaa 
+    
+                    // Check balance
                     if ($accountBalance >= $fees) {
-                        // ems7 awaaad
+                        // Deduct fees from the account balance
                         $newBalance = $accountBalance - $fees;
-
-                        // Update balance
+    
+                        // Update passenger balance
                         $updateBalanceQuery = "UPDATE users u
                                               INNER JOIN passenger p ON u.userID = p.userID
                                               SET u.accountBalance = ?
                                               WHERE p.passengerID = ?";
-                        $stmt = $conn->prepare($updateBalanceQuery);
-                        $stmt->bind_param("di", $newBalance, $passengerID);
-                        $stmt->execute();
-
-                        // store
+                        $stmtUpdateBalance = $conn->prepare($updateBalanceQuery);
+                        $stmtUpdateBalance->bind_param("di", $newBalance, $passengerID);
+                        $stmtUpdateBalance->execute();
+    
+                        // Store passenger flight record
                         $insertPassengerFlightQuery = "INSERT INTO passenger_flight (passengerID, flightID, passengerStatus) VALUES (?, ?, ?)";
-                        $stmt = $conn->prepare($insertPassengerFlightQuery);
-                        $stmt->bind_param("iss", $passengerID, $flightID, $passengerStatus);
-                        $stmt->execute();
-
+                        $stmtInsertPassengerFlight = $conn->prepare($insertPassengerFlightQuery);
+                        $stmtInsertPassengerFlight->bind_param("iss", $passengerID, $flightID, $passengerStatus);
+                        $stmtInsertPassengerFlight->execute();
+    
+                        // Get company balance
+                        $getCompanyBalanceQuery = "SELECT u.accountBalance
+                                                FROM users u
+                                                INNER JOIN company c ON u.userID = c.userID
+                                                WHERE c.companyID = ?";
+                        $stmtCompanyBalance = $conn->prepare($getCompanyBalanceQuery);
+                        $stmtCompanyBalance->bind_param("i", $companyID);
+                        $stmtCompanyBalance->bind_result($cBalance);
+                        $stmtCompanyBalance->execute();
+                        $stmtCompanyBalance->fetch();
+                        $stmtCompanyBalance->close();
+    
+                        // Update company balance
+                        $newCompanyBalance = $cBalance + $fees;
+                        $updateCompanyBalanceQuery = "UPDATE users u
+                                                      INNER JOIN company c ON u.userID = c.userID
+                                                      SET u.accountBalance = ?
+                                                      WHERE c.companyID = ?";
+                        $stmtUpdateCompanyBalance = $conn->prepare($updateCompanyBalanceQuery);
+                        $stmtUpdateCompanyBalance->bind_param("di", $newCompanyBalance, $companyID);
+                        $stmtUpdateCompanyBalance->execute();
+    
                         $message = 'Flight registration successful! New balance: ' . $newBalance;
                     } else {
                         $message = 'Sorry, not enough money in the account.';
@@ -73,16 +95,13 @@ if (!empty($passengerID)) {
             } else {
                 $message = 'No matching flight found.';
             }
-
+    
             // Close the statements
-            $stmt->close();
+            $stmtFlight->close();
         }
     } catch (Exception $e) {
         // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
-    } finally {
-        // Close the database connection
-        $conn->close();
     }
 } else {
     $message = 'Passenger ID is missing in the URL.';
@@ -155,11 +174,14 @@ if (!empty($passengerID)) {
             color: green;
             margin-top: 10px;
         }
-
+        .button-link:hover {
+            background-color: #146C94;
+        }
         h2 {
             display: block;
             text-align: center;
         }
+
     </style>
 </head>
 
@@ -185,6 +207,8 @@ if (!empty($passengerID)) {
         </select>
 
         <input type="submit" value="Register for Flight">
+        <a href="PassengerHome.php" style="margin-left: 15px; " class="button-link">Back</a>
+
     </form>
 
 </body>
