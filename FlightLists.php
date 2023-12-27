@@ -74,7 +74,6 @@ global $conn;
 $companyId = $_COOKIE['id'];
 
 
-//  flights data from the database
 function getFlightsData()
 {
     global $conn;
@@ -85,7 +84,6 @@ function getFlightsData()
                   FROM flight WHERE companyID=?";
 
         $stmt = $conn->prepare($query);
-        echo "<p>$companyId<p>";
 
 
         $stmt->bind_param("i", $companyId);
@@ -93,7 +91,6 @@ function getFlightsData()
         $stmt->execute();
         $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime);
 
-        // Fetch all rows
         $flights = [];
         while ($stmt->fetch()) {
             $flights[] = [
@@ -114,7 +111,6 @@ function getFlightsData()
     }
 }
 
-// Call the function to get data
 $flights = getFlightsData();
 ?>
 
@@ -147,10 +143,11 @@ $flights = getFlightsData();
     </table>
 </div>
 
-<!--link to go back -->
 <p></p>
 
-<a href="AddFlight.php" class="button-link">Add a New Flight</a>
+<a href="AddFlight.php" style="margin-right: 8px;" class="button-link">Add a New Flight</a>
+
+<a href="features/Home-Company/CompanyHome.php" class="button-link">Back</a>
 
 </body>
 </html>

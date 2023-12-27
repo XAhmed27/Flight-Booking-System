@@ -27,7 +27,6 @@ $telFromUrl = $_GET['tel'];
 $accountBalanceFromUrl = $_GET['accountBalance'];
 $companyData = array();
 
-// Initialize password-related variables
 $newName = $newBio = $newAddress = $newUsername = $newLocation = $newPassword = '';
 $message = $passwordMessage = '';
 
@@ -48,12 +47,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
         $stmtSelect->execute();
         $resultSelect = $stmtSelect->get_result();
 
-        // Fetch the result
         $companyData = $resultSelect->fetch_assoc();
 
-        // Check if data is found
         if ($companyData) {
-            // Update company information
             $updateCompanyQuery = "UPDATE company SET bio = ?, username = ?, address = ?, location = ? WHERE userID = ?";
             $stmtCompany = $conn->prepare($updateCompanyQuery);
             $stmtCompany->bind_param('ssssi', $newBio, $newUsername, $newAddress, $newLocation, $companyData['userID']);
@@ -62,7 +58,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                 error_log("Company Update Error: " . $stmtCompany->error);
             }
 
-            // Update user information
             $updateUserQuery = "UPDATE users SET name = ?, tel = ?, accountBalance = ? WHERE userID = ?";
             $stmtUser = $conn->prepare($updateUserQuery);
             $stmtUser->bind_param('sdsi', $newName, $telFromUrl, $accountBalanceFromUrl, $companyData['userID']);
@@ -71,7 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                 error_log("User Update Error: " . $stmtUser->error);
             }
 
-            // Update password if a new password is provided
             if (!empty($newPassword)) {
                 $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
                 $updatePasswordQuery = "UPDATE users SET password = ? WHERE userID = ?";
@@ -82,31 +76,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             }
 
 
-            // Redirect to the same page with updated parameters
             header("Location: CompanyProfile.php?name=" . urlencode($newName) . "&bio=" . urlencode($newBio) . "&address=" . urlencode($newAddress) . "&username=" . urlencode($newUsername) . "&location=" . urlencode($newLocation) . "&tel=" . urlencode($telFromUrl) . "&accountBalance=" . urlencode($accountBalanceFromUrl));
             exit();
         } else {
-            // Handle the case when no data is found
             $message = 'Failed to update company information. User not found.';
         }
     } catch (Exception $e) {
-        // Handle any exceptions
         $message = 'Failed to update company information. Error: ' . $e->getMessage();
-        // Log the error
         error_log("Error: " . $e->getMessage());
     } finally {
-        // Log queries and errors
         error_log("Update Company Query: $updateCompanyQuery");
         error_log("Update User Query: $updateUserQuery");
         error_log("Update Password Query: $updatePasswordQuery");
         error_log("Error: " . $conn->error);
 
-        // Close the database connection
         $conn->close();
     }
 }
 
-// Display company data if available in CompanyProfile.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -221,15 +208,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     <p>Tel: <?php echo htmlspecialchars($telFromUrl); ?></p>
     <p>Account Balance: <?php echo htmlspecialchars($accountBalanceFromUrl); ?></p>
 
-    <!-- Display password update message if any -->
     <p class="password-message"><?php echo $passwordMessage; ?></p>
 
-    <!-- Display general update message or error message if any -->
     <p class="error-message"><?php echo $message; ?></p>
 
 </div>
 
-<!-- Form to update company information -->
 <form action="" method="post">
     <label for="newName">Update Name:</label>
     <input type="text" id="newName" name="newName" value="<?php echo htmlspecialchars($nameFromUrl); ?>" required>
@@ -246,15 +230,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     <label for="newLocation">Update Location:</label>
     <input type="text" id="newLocation" name="newLocation" value="<?php echo htmlspecialchars($locationFromUrl); ?>" required>
 
-    <!-- Add password input -->
     <label for="newPassword">Update Password:</label>
     <input type="password" id="newPassword" name="newPassword">
 
     <input type="submit" name="update" value="Update">
 </form>
 
-<a href="CompanyHome.php" class="nav-button">Back to Company Home</a>
-<a href="FlightLists.php" class="nav-button">flightlists</a>
+<a href="/features/Home-Company/CompanyHome.php" style="margin-right: 8px;" class="nav-button">Back to Company Home</a>
+<a href="FlightLists.php" class="nav-button">flight list</a>
 
 </body>
 

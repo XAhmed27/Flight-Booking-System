@@ -11,7 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $companyId = $_COOKIE['id'];
     try {
         $flightID = $_POST['flightID'];
-        // Prepare the SQL query to retrieve flight and passenger details
         $getFlightDetailsQuery = "SELECT f.flightID, f.name AS flightName, p.passengerID, pf.passengerStatus
         FROM flight f
         LEFT JOIN passenger_flight pf ON f.flightID = pf.flightID
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param("i", $flightID);
         $stmt->execute();
         $stmt->bind_result($flightID, $flightName, $passengerID, $passengerStatus);
-        // Fetch the results
         $result = [];
         while ($stmt->fetch()) {
             $result[] = [
@@ -36,7 +34,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
     } catch (Exception $exception) {
-        // Call handleGlobalError in case of an exception
         handleGlobalError($exception);
     }
 }
@@ -69,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .widget {
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+            background-color: rgba(255, 255, 255, 0.8); 
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
@@ -168,7 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <p></p>
-<a href="../projectweb/features/Home-Company/CompanyHome.php" class="button-link">Back</a>
+<a href="features/Home-Company/CompanyHome.php" class="button-link">Back</a>
 </body>
 
 </html>

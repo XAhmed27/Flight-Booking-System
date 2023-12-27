@@ -159,64 +159,66 @@
     global $conn;
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
-
     try {
+        //* GET COMPANY LOGO AND USER ID.
         $companyID = $_COOKIE['id'];
-    
-        // Prepare the statement
-        $getCompanyLogo = "SELECT logoImg FROM company WHERE companyID=?";
-        $stmtCompany = $conn->prepare($getCompanyLogo);
+        
+        // Retrieve company information
+        $getCompanyInfo = "SELECT logoImg, userID FROM company WHERE companyID=?";
+        $stmtCompany = $conn->prepare($getCompanyInfo);
     
         if (!$stmtCompany) {
             throw new Exception("Error in preparing the statement: " . $conn->error);
         }
     
-        // Bind parameters
         $stmtCompany->bind_param("i", $companyID);
     
-        if (!$stmtCompany) {
-            throw new Exception("Error in binding parameters: " . $conn->error);
+        if (!$stmtCompany->execute()) {
+            throw new Exception("Error in executing the statement: " . $stmtCompany->error);
         }
     
-        // Execute the statement
-        $stmtCompany->execute();
-    
-        // Bind result
-        $stmtCompany->bind_result($logo);
-    
-        // Fetch the result
+        $stmtCompany->bind_result($logo, $userID);
         $stmtCompany->fetch();
-    
-        // Close the statement
         $stmtCompany->close();
     
+        // Retrieve company name using the user ID
+        $getCompanyName = "SELECT name FROM users WHERE userID=?";
+        $stmtUser = $conn->prepare($getCompanyName);
+        
+        if (!$stmtUser) {
+            throw new Exception("Error in preparing the statement: " . $conn->error);
+        }
+    
+        $stmtUser->bind_param("i", $userID);
+    
+        if (!$stmtUser->execute()) {
+            throw new Exception("Error in executing the statement: " . $stmtUser->error);
+        }
+    
+        $stmtUser->bind_result($CompanyName);
+        $stmtUser->fetch();
+        $stmtUser->close();
     } catch (Exception $e) {
-        // Handle the exception
         echo "Caught exception: " . $e->getMessage();
     }
-
-
+    
 
     echo <<<HTML
     <!-- Navigation bar -->
-    
     <div class="navbar">
         <a href="../../AddFlight.php" class="nav-button">Add Flight</a>
         <a href="../../FlightLists.php" class="nav-button">#Flights List</a>
         <a href="../../CompanyProfile.php" class="nav-button">Profile</a>
         <a href="../../CompanyMessages.php" class="nav-button">Messages</a>
         <a href="../../PassengersFlightStatus.php" class="nav-button">Flight Status</a>
-        
+        <span class="company-name">$CompanyName</span>  
     </div>
-
-    
 HTML;
     ?>
 
     <!-- Welcome message -->
     <h2 class="welcome-message">Welcome to Our Flight Booking System</h2>
 
-    <!-- The rest of your content goes here -->
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
