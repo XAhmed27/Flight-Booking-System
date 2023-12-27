@@ -191,12 +191,8 @@
 
         <input type="submit" value="Add Flight">
     </form>
- 
-    <!-- <input type="submit" value="Add Flight"> -->
 
-    <!-- <a href="/features/Home-Company/CompanyHome.php" class="nav-button">Back</a> -->
 </body>
-<!-- <br> -->
 
 <form style="background-color: transparent; display: block;" action="/features/Home-Company/CompanyHome.php" method="post">
         <button style="background-color: #146C94; 

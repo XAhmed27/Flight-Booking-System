@@ -7,24 +7,14 @@ use \Firebase\JWT\JWT;
 
 global $conn;
 $passengerID = $_COOKIE['id'];
-// if (!isset($_GET['passenger_id'])) {
-//     // check auth
-//     header("Location: passengerFlightAuth.php");
-//     exit();
-// }
 
-// Initialize variables
-// $passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
 $flightName = isset($_POST['flight_name']) ? $_POST['flight_name'] : '';
 $passengerStatus = 'cancel';
 $message = '';
 
-// Check if the passenger ID is provided in the URL
 if (!empty($passengerID)) {
     try {
-        // Check if the form is submitted
         if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($flightName)) {
-            // Search for the flight in the flight table
             $searchFlightQuery = "SELECT flightID, fees FROM flight WHERE name = ?";
             $stmt = $conn->prepare($searchFlightQuery);
             $stmt->bind_param("s", $flightName);
@@ -36,7 +26,6 @@ if (!empty($passengerID)) {
                 $flightID = $row['flightID'];
                 $fees = $row['fees'];
 
-                // Update passenger flight status to 'cancel'
                 $updateStatusQuery = "UPDATE passenger_flight SET passengerStatus = ? WHERE passengerID = ? AND flightID = ?";
                 $stmt = $conn->prepare($updateStatusQuery);
                 $stmt->bind_param("ssi", $passengerStatus, $passengerID, $flightID);
@@ -53,10 +42,8 @@ if (!empty($passengerID)) {
                     $row = $result->fetch_assoc();
                     $accountBalance = $row['accountBalance'];
 
-                    // Calculate new balance
                     $newBalance = $accountBalance + $fees;
 
-                    // Update user balance
                     $updateBalanceQuery = "UPDATE users u INNER JOIN passenger p ON u.userID = p.userID SET u.accountBalance = ? WHERE p.passengerID = ?";
                     $stmt = $conn->prepare($updateBalanceQuery);
                     $stmt->bind_param("di", $newBalance, $passengerID);
@@ -68,14 +55,11 @@ if (!empty($passengerID)) {
                 $message = 'You are not registered for the provided flight.';
             }
 
-            // Close the statements
             $stmt->close();
         }
     } catch (Exception $e) {
-        // Handle any exceptions
         $message = 'An error occurred: ' . $e->getMessage();
     } finally {
-        // Close the database connection
         $conn->close();
     }
 } else {
