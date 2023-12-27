@@ -23,20 +23,18 @@
         h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: grey;
-            /* Change font color to grey */
+            color: #0C4160;
             opacity: 1;
             font-size: 30px;
         }
 
-        /* Style for the navigation bar */
         .navbar {
             background-color: transparent;
             padding: 10px;
             box-sizing: border-box;
             display: flex;
-            justify-content: center;
-            /* Center the items horizontally */
+            align-items: center; /* Align items vertically */
+            justify-content: center; /* Center the items horizontally */
             position: fixed;
             top: 0;
             z-index: 1000;
@@ -45,7 +43,6 @@
             width: 100%;
         }
 
-        /* Style for the navigation buttons */
         .nav-button {
             background-color: transparent;
             color: white;
@@ -56,15 +53,16 @@
             text-decoration: none;
             font-size: 16px;
             margin: 0 10px;
-            /* Add margin between buttons */
         }
 
-        /* Hover effect for the navigation buttons */
         .nav-button:hover {
             background-color: #146C94;
         }
 
-        /* Keyframe animations */
+        .company-name {
+            margin-left: 10px; /* Add margin to separate the logo and company name */
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -74,8 +72,6 @@
                 opacity: 1;
             }
         }
-
-        /* Additional style for letter animation */
         .letter {
             display: inline-block;
             opacity: 0;
@@ -83,7 +79,6 @@
             animation: fadeInLetter 1s forwards, slideUp 0.5s forwards;
         }
 
-        /* Keyframe animations for letter */
         @keyframes fadeInLetter {
             from {
                 opacity: 0;
@@ -94,7 +89,6 @@
             }
         }
 
-        /* Additional keyframe animation for sliding up */
         @keyframes slideUp {
             from {
                 transform: translateY(1em);
@@ -133,11 +127,8 @@
 
         .temp {
             position: fixed;
-            /* Use fixed position for the entire screen */
             top: 15px;
-            /* Align to the top */
             left: 15px;
-            /* Align to the left */
             display: inline-block;
         }
 
@@ -145,6 +136,7 @@
             top: 0;
             right: 0;
         }
+        
     </style>
 </head>
 
@@ -163,7 +155,6 @@
         //* GET COMPANY LOGO AND USER ID.
         $companyID = $_COOKIE['id'];
         
-        // Retrieve company information
         $getCompanyInfo = "SELECT logoImg, userID FROM company WHERE companyID=?";
         $stmtCompany = $conn->prepare($getCompanyInfo);
     
@@ -181,7 +172,6 @@
         $stmtCompany->fetch();
         $stmtCompany->close();
     
-        // Retrieve company name using the user ID
         $getCompanyName = "SELECT name FROM users WHERE userID=?";
         $stmtUser = $conn->prepare($getCompanyName);
         
@@ -204,27 +194,24 @@
     
 
     echo <<<HTML
-    <!-- Navigation bar -->
-    <div class="navbar">
-        <a href="../../AddFlight.php" class="nav-button">Add Flight</a>
-        <a href="../../FlightLists.php" class="nav-button">#Flights List</a>
-        <a href="../../CompanyProfile.php" class="nav-button">Profile</a>
-        <a href="../../CompanyMessages.php" class="nav-button">Messages</a>
-        <a href="../../PassengersFlightStatus.php" class="nav-button">Flight Status</a>
-        <span class="company-name">$CompanyName</span>  
-    </div>
+ <!-- Navigation bar -->
+<div class="navbar">
+    <a href="../../AddFlight.php" class="nav-button">Add Flight</a>
+    <a href="../../FlightLists.php" class="nav-button">#Flights List</a>
+    <a href="../../CompanyProfile.php" class="nav-button">Profile</a>
+    <a href="../../CompanyMessages.php" class="nav-button">Messages</a>
+    <a href="../../PassengersFlightStatus.php" class="nav-button">Flight Status</a>
+</div>
 HTML;
     ?>
 
     <!-- Welcome message -->
-    <h2 class="welcome-message">Welcome to Our Flight Booking System</h2>
-
-
+    <h2 class="welcome-message"><span class="company-name">Welcome to our <?php echo $CompanyName?> Company</span>
+</h2>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function() {
-            // Split the sentence into letters
             var letters = $(".welcome-message").text().split("");
             // Clear the content of the h2 element
             $(".welcome-message").empty();

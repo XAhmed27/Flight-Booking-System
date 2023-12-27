@@ -156,11 +156,11 @@ try {
             <img src="../../assets/<?php echo $photo; ?>" alt="avatar" class="profile-picture">
             <span class="status"></span>
         </div>
-        <a href="auth.php" class="nav-button" name="name_button"><?php echo $passengerName; ?></a>
-        <a href="auth.php" class="nav-button" name="email_button">
+        <a class="nav-button" name="name_button"><?php echo $passengerName; ?></a>
+        <a  class="nav-button" name="email_button">
             <span class="email-hover"><?php echo $passengerEmail; ?></span>
         </a>
-        <a href="auth.php" class="nav-button" name="tel_button" style="padding-right: 20px;"><?php echo $passengerTel; ?></a>
+        <a class="nav-button" name="tel_button" style="padding-right: 20px;"><?php echo $passengerTel; ?></a>
         <a href="MyProfile.php" class="nav-button">Profile</a>
         <a href="SearchFlight.php" class="nav-button">SearchFlight</a>
         <a href="MyFlight.php" class="nav-button">Current Flight</a>
