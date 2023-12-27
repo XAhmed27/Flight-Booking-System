@@ -80,7 +80,7 @@ function getFlightsData()
     $companyId = $_COOKIE['id'];
 
     try {
-        $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime
+        $query = "SELECT flightID, name, flight_from, flight_to, fees, startTime, endTime , status
                   FROM flight WHERE companyID=?";
 
         $stmt = $conn->prepare($query);
@@ -89,7 +89,7 @@ function getFlightsData()
         $stmt->bind_param("i", $companyId);
 
         $stmt->execute();
-        $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime);
+        $stmt->bind_result($flightID, $name, $flightFrom, $flightTo, $fees, $startTime, $endTime,$status);
 
         $flights = [];
         while ($stmt->fetch()) {
@@ -101,6 +101,8 @@ function getFlightsData()
                 'fees' => $fees,
                 'startTime' => $startTime,
                 'endTime' => $endTime,
+                'status' => $status,
+
             ];
         }
 
@@ -129,6 +131,8 @@ $flights = getFlightsData();
             <th>Fees</th>
             <th>Start Time</th>
             <th>End Time</th>
+            <th>status</th>
+
         </tr>
         <?php foreach ($flights ?? [] as $flightName => $flight) : ?>
             <tr>
@@ -138,6 +142,7 @@ $flights = getFlightsData();
                 <td><?php echo $flight['fees']; ?></td>
                 <td><?php echo $flight['startTime']; ?></td>
                 <td><?php echo $flight['endTime']; ?></td>
+                <td><?php echo $flight['status']; ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
