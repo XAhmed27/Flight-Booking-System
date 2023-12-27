@@ -6,14 +6,7 @@ require_once 'connection.php';
 use \Firebase\JWT\JWT;
 
 global $conn;
-if (!isset($_GET['passenger_id'])) {
-    // check auth
-    header("Location: passengerFlightAuth.php");
-    exit();
-}
-
-// Initialize variables
-$passengerID = isset($_GET['passenger_id']) ? $_GET['passenger_id'] : '';
+$passengerID = $_COOKIE['id'];
 $flightFrom = isset($_POST['flight_from']) ? $_POST['flight_from'] : '';
 $flightTo = isset($_POST['flight_to']) ? $_POST['flight_to'] : '';
 $passengerStatus = isset($_POST['status']) ? $_POST['status'] : 'pending';
